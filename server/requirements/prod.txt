@@ -1,0 +1,33 @@
+# Everything needed in production
+
+# Flask
+Flask==0.10.1
+MarkupSafe==0.21
+Werkzeug==0.9.4
+Jinja2==2.7.2
+itsdangerous==0.24
+
+# REST API
+Flask-Restful==0.13.0
+
+# Database
+Flask-SQLAlchemy==1.0
+SQLAlchemy==0.9.4
+
+# Migrations
+Flask-Migrate>=1.0.0
+
+# Forms
+Flask-WTF==0.9.5
+WTForms==1.0.5
+
+# Deployment
+gunicorn>=17.5
+wsgiref>=0.1.2
+
+# Auth
+Flask-Login>=0.2.7
+Flask-Bcrypt>=0.5.2
+
+# Caching
+Flask-Cache>=0.12

@@ -1,0 +1,20 @@
+# -*- coding: utf-8 -*-
+"""konch configuration file. Run ``konch`` to start a shell session
+with all models and the app imported
+"""
+import konch
+import os
+from app.books.models import *
+from app.database import db
+from tests.utils import fake
+from app.settings import DevConfig, ProdConfig
+from app.factory import create_app
+
+if os.environ.get("PSYGIST_ENV") == 'prod':
+    app = create_app(ProdConfig)
+else:
+    app = create_app(DevConfig)
+
+konch.config({
+    'context': locals()
+})
