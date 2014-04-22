@@ -8,7 +8,9 @@ Jinja2==2.7.2
 itsdangerous==0.24
 
 # REST API
-Flask-Restful==0.13.0
+Flask-Restful
+marshmallow
+-e git://github.com/sloria/webargs.git@dev#egg=webargs
 
 # Database
 Flask-SQLAlchemy==1.0

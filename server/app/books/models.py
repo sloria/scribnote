@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from flask import url_for
 from ..database import (
     Model,
     Col,
@@ -9,7 +10,6 @@ from ..database import (
     DefaultDateTimeCol,
 )
 
-__all__ = ['Author', 'Book']
 
 class Author(SurrogatePK, Model):
     __tablename__ = 'authors'
@@ -17,6 +17,8 @@ class Author(SurrogatePK, Model):
     first = Col(db.Unicode)
     last = Col(db.Unicode)
     date_created = DefaultDateTimeCol()
+
+    _order_by = 'date_created'
 
     @property
     def full_name(self):
@@ -28,6 +30,13 @@ class Author(SurrogatePK, Model):
     def __repr__(self):
         return '<Author({self.full_name!r})>'.format(self=self)
 
+    @property
+    def url(self):
+        return url_for('books.author', id=self.id)
+
+    @property
+    def absolute_url(self):
+        return url_for('books.author', id=self.id, _external=True)
 
 class Book(SurrogatePK, Model):
     __tablename__ = 'books'

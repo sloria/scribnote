@@ -44,6 +44,23 @@ class Model(CRUDMixin, db.Model):
     """Base model class that includes CRUD convenience methods."""
     __abstract__ = True
 
+    _order_by = None
+
+    @classmethod
+    def get_first(cls):
+        order_by_attr = getattr(cls, cls._order_by)
+        if order_by_attr is None:
+            raise ValueError('Model does not define "_order_by"')
+        return cls.query.order_by(order_by_attr).first()
+
+    @classmethod
+    def get_latest(cls):
+        order_by_attr = getattr(cls, cls._order_by)
+        if order_by_attr is None:
+            raise ValueError('Model does not define "_order_by"')
+        return cls.query.order_by(order_by_attr.desc()).first()
+
+
 # From Mike Bayer's "Building the app" talk
 # https://speakerdeck.com/zzzeek/building-the-app
 class SurrogatePK(object):

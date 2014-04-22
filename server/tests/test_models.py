@@ -2,6 +2,7 @@
 """Model unit tests."""
 import datetime as dt
 
+from flask import url_for
 import pytest
 
 from server.app.user.models import User, Role
@@ -98,3 +99,12 @@ class TestAuthor:
         assert author.first
         assert author.last
         assert author.id
+
+    def test_url(self, app):
+        author = AuthorFactory()
+        assert author.url == url_for('books.author', id=author.id)
+
+    def test_absolute_url(self, app):
+        author = AuthorFactory()
+        assert author.absolute_url == url_for('books.author', id=author.id,
+            _external=True)

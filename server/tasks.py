@@ -9,8 +9,7 @@ from invoke import task, run
 HERE = os.path.abspath(os.path.dirname(__file__))
 MANAGE_SCRIPT = os.path.join(HERE, 'manage.py')
 
-@task(default=True)
-def serve(port=5000):
+def get_app():
     # Import inside the function so that invoke will work before dependencies
     # are installed
     from app.factory import create_app
@@ -19,6 +18,12 @@ def serve(port=5000):
         app = create_app(ProdConfig)
     else:
         app = create_app(DevConfig)
+    return app
+
+
+@task(default=True)
+def serve(port=5000):
+    app = get_app()
     app.run(port=5000)
 
 @task
@@ -33,9 +38,7 @@ def requirements(dev=False):
 @task
 def shell():
     """Start up the enhanced shell with all models automatically imported."""
-    import konch
-    konch.use_file(os.path.join(HERE, '.konchrc'))
-    konch.start()
+    run('python {0} shell'.format(MANAGE_SCRIPT), pty=True)
 
 @task
 def initdb():
@@ -60,4 +63,4 @@ def automigrate():
 def test():
     """Run all the tests in the tests directory."""
     import pytest
-    pytest.main([HERE, '-s'])
+    pytest.main([os.path.join(HERE, 'tests'), '-s'])
