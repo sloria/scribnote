@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from flask import url_for
-from ..database import (
+
+from ..meta.database import (
     Model,
     Col,
     db,

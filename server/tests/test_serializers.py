@@ -23,8 +23,8 @@ class TestAuthorMarshal:
         author = AuthorFactory()
         data = AuthorMarshal(author, strict=True).data
         links = data['_links']
-        assert links['self'] == url_for('books.author', id=author.id)
-        assert links['collection'] == url_for('books.authors')
+        assert links['self'] == url_for('books.author', id=author.id, _external=True)
+        assert links['collection'] == url_for('books.authors', _external=True)
 
 
 @pytest.mark.usefixtures('db')
@@ -40,5 +40,5 @@ class TestBookMarshal:
         book = BookFactory()
         data = BookMarshal(book, strict=True).data
         links = data['_links']
-        assert links['self'] == url_for('books.book', id=book.id)
-        assert links['collection'] == url_for('books.books')
+        assert links['self'] == url_for('books.book', id=book.id, _external=True)
+        assert links['collection'] == url_for('books.books', _external=True)

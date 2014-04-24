@@ -25,8 +25,8 @@ use_args = reqparser.use_args
 
 
 class ModelResource(Resource):
-    """Implements HTTP-based CRUD for a given model. Must define ``MODEL`` and
-    ``SERIALIZER`` class variables.
+    """Implements generic HTTP-based CRUD for a given model.
+    Must define ``MODEL`` and ``SERIALIZER`` class variables.
     """
     MODEL = None
     SERIALIZER = None
@@ -43,7 +43,7 @@ class ModelResource(Resource):
 
 
 class ModelListResource(Resource):
-    """Implements HTTP-based collection CRUD for a given model."""
+    """Implements generic HTTP-based collection CRUD for a given model."""
 
     MODEL = None
     SERIALIZER = None
@@ -74,9 +74,27 @@ def api_get_or_404(model, id, **kwargs):
     """
     return model.query.get(id) or api_abort(404, **kwargs)
 
+class Link(dict):
+    """A hyperlink to an endpoint.
+
+    Provides sugar for the HyperlinksField.
+
+    ``Link('books', id='_id', _external=True)``
+
+    is equivalent to
+
+    {'endpoint': 'books', 'params': {'id': '_id', 'external': True}}
+    """
+
+    def __init__(self, endpoint, **kwargs):
+        dict.__init__(self, endpoint=endpoint, params=kwargs)
+
+    def __repr__(self):
+        dictrepr = dict.__repr__(self)
+        return '<Link({0})>'.format(dictrepr)
 
 class HyperlinksField(fields.Raw):
-    """Custom marshmallow field for that outputs a dictionary of hyperlinks,
+    """Custom marshmallow field that outputs a dictionary of hyperlinks,
     given a dictionary schema.
 
     Example: ::

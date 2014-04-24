@@ -4,7 +4,7 @@ import datetime as dt
 from flask.ext.login import UserMixin
 
 from ..extensions import bcrypt
-from ..database import (
+from ..meta.database import (
     Column,
     db,
     Model,

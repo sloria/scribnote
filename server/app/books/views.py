@@ -1,16 +1,16 @@
 # -*- coding: utf-8 -*-
-import httplib as http
 import logging
 
 from flask import Blueprint
-from flask.ext.restful import Api, Resource
+from flask.ext.restful import Api
 from marshmallow import Serializer, fields
 from webargs import Arg
 
-from ..utils.api import (
+from ..meta.api import (
     api_get_or_404,
     reqparser,
     HyperlinksField,
+    Link,
     ModelResource,
     ModelListResource
 )
@@ -25,13 +25,10 @@ api = Api(blueprint)
 class AuthorMarshal(Serializer):
     created = fields.DateTime(attribute='date_created')
 
+    # Implement HATEOAS
     _links = HyperlinksField({
-        'self': {
-            'endpoint': 'books.author', 'params': {'id': 'id'}
-        },
-        'collection': {
-            'endpoint': 'books.authors',
-        }
+        'self': Link('books.author', id='id', _external=True),
+        'collection': Link('books.authors', _external=True),
     })
 
     class Meta:
@@ -40,9 +37,10 @@ class AuthorMarshal(Serializer):
 class BookMarshal(Serializer):
     created = fields.DateTime(attribute='date_created')
     author = fields.Nested(AuthorMarshal)
+
     _links = HyperlinksField({
-        'self': {'endpoint': 'books.book', 'params': {'id': 'id'}},
-        'collection': {'endpoint': 'books.books'}
+        'self': Link('books.book', id='id', _external=True),
+        'collection': Link('books.books', _external=True),
     })
 
     class Meta:
@@ -52,13 +50,13 @@ class BookMarshal(Serializer):
 
 class AuthorResource(ModelResource):
     MODEL = Author
-    SERIALIZER =AuthorMarshal
+    SERIALIZER = AuthorMarshal
     NAME = 'author'
 
 
 class AuthorListResource(ModelListResource):
     MODEL = Author
-    SERIALIZER =AuthorMarshal
+    SERIALIZER = AuthorMarshal
     NAME = 'author'
 
     ARGS = {
