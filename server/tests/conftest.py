@@ -6,7 +6,7 @@ from webtest import TestApp
 
 from server.app.settings import TestConfig
 from server.app.factory import create_app
-from server.app.database import db as _db
+from server.app.meta.database import db as _db
 
 from .factories import UserFactory
 

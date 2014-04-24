@@ -74,24 +74,49 @@ def api_get_or_404(model, id, **kwargs):
     """
     return model.query.get(id) or api_abort(404, **kwargs)
 
-class Link(dict):
+class Link(fields.Raw):
     """A hyperlink to an endpoint.
 
     Provides sugar for the HyperlinksField.
 
     ``Link('books', id='_id', _external=True)``
-
-    is equivalent to
-
-    {'endpoint': 'books', 'params': {'id': '_id', 'external': True}}
     """
 
-    def __init__(self, endpoint, **kwargs):
-        dict.__init__(self, endpoint=endpoint, params=kwargs)
+    def __init__(self, endpoint, attribute=None, **kwargs):
+        self.endpoint = endpoint
+        self.params = kwargs
+        self.attribute = attribute
 
-    def __repr__(self):
-        dictrepr = dict.__repr__(self)
-        return '<Link({0})>'.format(dictrepr)
+    def output(self, key, obj):
+        param_values = {}
+        for name, attr in self.params.iteritems():
+            try:
+                param_values[name] = self.get_value(key=attr, obj=obj)
+            except AttributeError:
+                param_values[name] = attr
+        return url_for(self.endpoint, **param_values)
+
+
+def rapply(d, func, *args, **kwargs):
+    """Apply a function to a all values in a dictionary, recursively."""
+    if isinstance(d, dict):
+        return {
+            key: rapply(value, func, **kwargs)
+            for key, value in d.iteritems()
+        }
+    else:
+        return func(d, **kwargs)
+
+
+def _url_val(val, key, obj, **kwargs):
+    """Function applied by HyperlinksField to get the correct value in the
+    schema.
+    """
+    if isinstance(val, Link):
+        return val.output(key, obj, **kwargs)
+    else:
+        return val
+
 
 class HyperlinksField(fields.Raw):
     """Custom marshmallow field that outputs a dictionary of hyperlinks,
@@ -100,11 +125,8 @@ class HyperlinksField(fields.Raw):
     Example: ::
 
         _links = HyperlinksField({
-            'self': {
-                'endpoint': 'author', 'params': {'id': 'id'}
-            },
-            'collection': {
-                'endpoint': 'author_list',
+            'self': Link('author', id='id'),
+            'collection': Link('author_list'),
             }
         })
 
@@ -117,18 +139,5 @@ class HyperlinksField(fields.Raw):
         super(HyperlinksField, self).__init__(**kwargs)
         self.schema = schema
 
-    def _get_url(self, config, obj):
-        param_values = {}
-        endpoint = config['endpoint']
-        for name, attr in config.get('params', {}).iteritems():
-            try:
-                param_values[name] = self.get_value(key=attr, obj=obj)
-            except AttributeError:
-                param_values[name] = attr
-        return url_for(endpoint, **param_values)
-
     def output(self, key, obj):
-        ret = {}
-        for key, config in self.schema.iteritems():
-            ret[key] = self._get_url(config, obj)
-        return ret
+        return rapply(self.schema, _url_val, key=key, obj=obj)

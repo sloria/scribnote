@@ -9,7 +9,7 @@ from factory.alchemy import SQLAlchemyModelFactory
 
 from server.app.user.models import User
 from server.app.books.models import Author, Book
-from server.app.database import db
+from server.app.meta.database import db
 
 from .utils import fake
 
