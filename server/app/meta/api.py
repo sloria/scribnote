@@ -86,13 +86,13 @@ def tpl(val):
     return None
 
 
-class Url(fields.Raw):
+class URL(fields.Raw):
     """A hyperlink to an endpoint.
 
     Usage: ::
 
-        url = Url('author_get', id='<<id>>')
-        absolute_url = Url('author_get', id='<<id>>', _external=True)
+        url = URL('author_get', id='<<id>>')
+        absolute_url = URL('author_get', id='<<id>>', _external=True)
 
     :param str endpoint: Flask endpoint name.
     :param kwargs: Same keyword arguments as Flask's url_for, except string
@@ -115,6 +115,17 @@ class Url(fields.Raw):
                 param_values[name] = attr
         return url_for(self.endpoint, **param_values)
 
+Url = URL
+
+class AbsoluteURL(URL):
+
+    def __init__(self, endpoint, **kwargs):
+        kwargs['_external'] = True
+        URL.__init__(self, endpoint=endpoint, **kwargs)
+
+
+AbsoluteUrl = AbsoluteURL
+
 
 def rapply(d, func, *args, **kwargs):
     """Apply a function to a all values in a dictionary, recursively."""
@@ -131,7 +142,7 @@ def _url_val(val, key, obj, **kwargs):
     """Function applied by HyperlinksField to get the correct value in the
     schema.
     """
-    if isinstance(val, Url):
+    if isinstance(val, URL):
         return val.output(key, obj, **kwargs)
     else:
         return val
@@ -139,21 +150,21 @@ def _url_val(val, key, obj, **kwargs):
 
 class Hyperlinks(fields.Raw):
     """Custom marshmallow field that outputs a dictionary of hyperlinks,
-    given a dictionary schema with ``Url`` objects as values.
+    given a dictionary schema with ``URL`` objects as values.
 
     Example: ::
 
         _links = Hyperlinks({
-            'self': Url('author', id='id'),
-            'collection': Url('author_list'),
+            'self': URL('author', id='id'),
+            'collection': URL('author_list'),
             }
         })
 
-    ``Url`` objects can be nested within the dictionary. ::
+    ``URL`` objects can be nested within the dictionary. ::
 
         _links = Hyperlinks({
             'self': {
-                'href': Url('book', id=<<id>>),
+                'href': URL('book', id=<<id>>),
                 'title': 'book detail'
             }
         })
