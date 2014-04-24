@@ -9,8 +9,8 @@ from webargs import Arg
 from ..meta.api import (
     api_get_or_404,
     reqparser,
-    HyperlinksField,
-    Link,
+    Hyperlinks,
+    Url,
     ModelResource,
     ModelListResource
 )
@@ -26,9 +26,9 @@ class AuthorMarshal(Serializer):
     created = fields.DateTime(attribute='date_created')
 
     # Implement HATEOAS
-    _links = HyperlinksField({
-        'self': Link('books.author', id='id', _external=True),
-        'collection': Link('books.authors', _external=True),
+    _links = Hyperlinks({
+        'self': Url('books.author', id='<<id>>', _external=True),
+        'collection': Url('books.authors', _external=True),
     })
 
     class Meta:
@@ -38,9 +38,9 @@ class BookMarshal(Serializer):
     created = fields.DateTime(attribute='date_created')
     author = fields.Nested(AuthorMarshal)
 
-    _links = HyperlinksField({
-        'self': Link('books.book', id='id', _external=True),
-        'collection': Link('books.books', _external=True),
+    _links = Hyperlinks({
+        'self': Url('books.book', id='<<id>>', _external=True),
+        'collection': Url('books.books', _external=True),
     })
 
     class Meta:

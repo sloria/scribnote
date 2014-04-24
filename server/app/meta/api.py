@@ -86,17 +86,18 @@ def tpl(val):
     return None
 
 
-class Link(fields.Raw):
+class Url(fields.Raw):
     """A hyperlink to an endpoint.
 
     Usage: ::
 
-        url = Link('author_get', id='<<id>>')
+        url = Url('author_get', id='<<id>>')
+        absolute_url = Url('author_get', id='<<id>>', _external=True)
 
     :param str endpoint: Flask endpoint name.
-    :param kwargs: Same keyword arguments as Flask's url_for, except values
-        enclosed in `< >` will be interpreted as attributes to pull from the
-        object.
+    :param kwargs: Same keyword arguments as Flask's url_for, except string
+        arguments enclosed in `<< >>` will be interpreted as attributes to pull
+        from the object.
     """
 
     def __init__(self, endpoint, **kwargs):
@@ -109,7 +110,7 @@ class Link(fields.Raw):
         param_values = {}
         for name, attr in self.params.iteritems():
             try:
-                param_values[name] = self.get_value(key=tpl(attr), obj=obj)
+                param_values[name] = self.get_value(key=tpl(str(attr)), obj=obj)
             except AttributeError:
                 param_values[name] = attr
         return url_for(self.endpoint, **param_values)
@@ -130,21 +131,30 @@ def _url_val(val, key, obj, **kwargs):
     """Function applied by HyperlinksField to get the correct value in the
     schema.
     """
-    if isinstance(val, Link):
+    if isinstance(val, Url):
         return val.output(key, obj, **kwargs)
     else:
         return val
 
 
-class HyperlinksField(fields.Raw):
+class Hyperlinks(fields.Raw):
     """Custom marshmallow field that outputs a dictionary of hyperlinks,
-    given a dictionary schema with Link objects as values.
+    given a dictionary schema with ``Url`` objects as values.
 
     Example: ::
 
-        _links = HyperlinksField({
-            'self': Link('author', id='id'),
-            'collection': Link('author_list'),
+        _links = Hyperlinks({
+            'self': Url('author', id='id'),
+            'collection': Url('author_list'),
+            }
+        })
+
+    ``Url`` objects can be nested within the dictionary. ::
+
+        _links = Hyperlinks({
+            'self': {
+                'href': Url('book', id=<<id>>),
+                'title': 'book detail'
             }
         })
 
@@ -154,7 +164,7 @@ class HyperlinksField(fields.Raw):
     """
 
     def __init__(self, schema, **kwargs):
-        super(HyperlinksField, self).__init__(**kwargs)
+        super(Hyperlinks, self).__init__(**kwargs)
         self.schema = schema
 
     def output(self, key, obj):
