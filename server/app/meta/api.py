@@ -3,6 +3,7 @@
 marshalling, etc.
 """
 import httplib as http
+import re
 
 from flask import url_for, request
 from webargs.flaskparser import FlaskParser
@@ -74,24 +75,41 @@ def api_get_or_404(model, id, **kwargs):
     """
     return model.query.get(id) or api_abort(404, **kwargs)
 
+##### marshmallow
+
+_tpl_pattern = re.compile(r'\s*<<\s*(\S*)\s*>>\s*')
+
+def tpl(val):
+    match = _tpl_pattern.match(val)
+    if match:
+        return match.groups()[0]
+    return None
+
+
 class Link(fields.Raw):
     """A hyperlink to an endpoint.
 
-    Provides sugar for the HyperlinksField.
+    Usage: ::
 
-    ``Link('books', id='_id', _external=True)``
+        url = Link('author_get', id='<<id>>')
+
+    :param str endpoint: Flask endpoint name.
+    :param kwargs: Same keyword arguments as Flask's url_for, except values
+        enclosed in `< >` will be interpreted as attributes to pull from the
+        object.
     """
 
-    def __init__(self, endpoint, attribute=None, **kwargs):
+    def __init__(self, endpoint, **kwargs):
         self.endpoint = endpoint
         self.params = kwargs
-        self.attribute = attribute
+        # All fields need self.attribute
+        self.attribute = None
 
     def output(self, key, obj):
         param_values = {}
         for name, attr in self.params.iteritems():
             try:
-                param_values[name] = self.get_value(key=attr, obj=obj)
+                param_values[name] = self.get_value(key=tpl(attr), obj=obj)
             except AttributeError:
                 param_values[name] = attr
         return url_for(self.endpoint, **param_values)
@@ -120,7 +138,7 @@ def _url_val(val, key, obj, **kwargs):
 
 class HyperlinksField(fields.Raw):
     """Custom marshmallow field that outputs a dictionary of hyperlinks,
-    given a dictionary schema.
+    given a dictionary schema with Link objects as values.
 
     Example: ::
 
