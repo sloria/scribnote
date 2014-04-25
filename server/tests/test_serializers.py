@@ -4,9 +4,9 @@ import pytest
 from marshmallow.utils import rfcformat
 
 from flask import url_for
+from marshmallow import pprint
+
 from server.app.books.views import AuthorMarshal, BookMarshal
-
-
 from .factories import AuthorFactory, BookFactory
 
 @pytest.mark.usefixtures('db')
@@ -14,7 +14,7 @@ class TestAuthorMarshal:
 
     def test_serialize_single(self):
         author = AuthorFactory()
-        data = AuthorMarshal(author).data
+        data = AuthorMarshal(author, strict=True).data
         assert data['first'] == author.first
         assert data['last'] == author.last
         assert data['created'] == rfcformat(author.date_created)

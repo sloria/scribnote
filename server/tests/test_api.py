@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
-from urlparse import urlparse
 
 import pytest
 from flask import url_for
 import httplib as http
 from marshmallow.utils import rfcformat
 
-from server.app.books.models import Author
+from server.app.books.models import Author, Book
 from .factories import AuthorFactory, BookFactory
 from .utils import fake
 
@@ -93,3 +92,25 @@ class TestBookResource:
         data = res.json['result']
         assert data['title'] == book.title
         assert 'author' in data
+
+    def test_post_creates_book(self, wt):
+        author = AuthorFactory()
+        old_count = Book.query.count()
+        first, last = fake.first_name(), fake.last_name()
+        url = url_for('books.books')
+        title = fake.bs()
+        res = wt.post_json(url, {'title': title, 'author_id': author.id})
+        assert res.status_code == http.CREATED
+        data = res.json['result']
+        assert data['title'] == title
+        assert res.json['message'] == 'Successfully created new book'
+        assert Book.query.count() == old_count + 1
+        latest = Book.get_latest()
+        assert latest.title == title
+        assert latest.author == author
+
+    def test_post_requires_author_id(self, wt):
+        url = url_for('books.books')
+        title = fake.bs()
+        res = wt.post_json(url, {'title': title}, expect_errors=True)
+        assert res.status_code == 400

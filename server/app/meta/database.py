@@ -49,16 +49,16 @@ class Model(CRUDMixin, db.Model):
 
     @classmethod
     def get_first(cls):
-        order_by_attr = getattr(cls, cls._order_by)
-        if order_by_attr is None:
+        if cls._order_by is None:
             raise ValueError('Model does not define "_order_by"')
+        order_by_attr = getattr(cls, cls._order_by)
         return cls.query.order_by(order_by_attr).first()
 
     @classmethod
     def get_latest(cls):
-        order_by_attr = getattr(cls, cls._order_by)
-        if order_by_attr is None:
+        if cls._order_by is None:
             raise ValueError('Model does not define "_order_by"')
+        order_by_attr = getattr(cls, cls._order_by)
         return cls.query.order_by(order_by_attr.desc()).first()
 
 

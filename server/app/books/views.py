@@ -10,9 +10,9 @@ from ..meta.api import (
     api_get_or_404,
     reqparser,
     Hyperlinks,
-    Url,
+    URL,
     ModelResource,
-    ModelListResource
+    ModelListResource,
 )
 from .models import Author, Book
 
@@ -27,8 +27,8 @@ class AuthorMarshal(Serializer):
 
     # Implement HATEOAS
     _links = Hyperlinks({
-        'self': Url('books.author', id='<<id>>', _external=True),
-        'collection': Url('books.authors', _external=True),
+        'self': URL('books.author', id='<<id>>', _external=True),
+        'collection': URL('books.authors', _external=True),
     })
 
     class Meta:
@@ -39,8 +39,8 @@ class BookMarshal(Serializer):
     author = fields.Nested(AuthorMarshal)
 
     _links = Hyperlinks({
-        'self': Url('books.book', id='<<id>>', _external=True),
-        'collection': Url('books.books', _external=True),
+        'self': URL('books.book', id='<<id>>', _external=True),
+        'collection': URL('books.books', _external=True),
     })
 
     class Meta:
@@ -74,6 +74,11 @@ class BookListResource(ModelListResource):
     MODEL = Book
     SERIALIZER = BookMarshal
     NAME = 'book'
+
+    ARGS = {
+        'title': Arg(str, required=True),
+        'author_id': Arg(int, required=True),
+    }
 
 
 api.add_resource(AuthorResource, '/authors/<int:id>', endpoint='author')

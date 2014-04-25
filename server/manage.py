@@ -18,7 +18,7 @@ else:
 def _make_context():
     from app.books.models import Author, Book
     from app.user.models import User
-    from app.database import db
+    from app.meta.database import db
     from flask import url_for
     from tests.utils import fake
     return locals()

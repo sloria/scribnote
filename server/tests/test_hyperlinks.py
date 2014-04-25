@@ -3,6 +3,8 @@ import mock
 import pytest
 
 from flask import url_for
+from werkzeug.routing import BuildError
+
 from server.app.meta.api import Hyperlinks, URL, tpl, AbsoluteURL
 
 @pytest.fixture
@@ -31,6 +33,11 @@ def test_url_field(app, mockauthor):
     field = URL('books.author', id='<<id>>')
     result = field.output('url', mockauthor)
     assert result == url_for('books.author', id=mockauthor.id)
+
+def test_invalid_endpoint_raises_build_error(app, mockauthor):
+    field = URL('badendpoint')
+    with pytest.raises(BuildError):
+        field.output('url', mockauthor)
 
 def test_hyperlinks_field(app, mockauthor):
     field = Hyperlinks({

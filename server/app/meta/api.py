@@ -39,7 +39,7 @@ class ModelResource(Resource):
         obj = api_get_or_404(self.MODEL, id,
             message="{name} not found".format(name=name))
         return {
-            'result': self.SERIALIZER(obj).data,
+            'result': self.SERIALIZER(obj, strict=True).data,
         }, http.OK
 
 
@@ -60,11 +60,14 @@ class ModelListResource(Resource):
 
     def post(self):
         """Create a new instance of the resource."""
-        args = reqparser.parse(self.ARGS, request)
+        if self.ARGS:
+            args = reqparser.parse(self.ARGS, request)
+        else:
+            args = {}
         new_obj = self.MODEL.create(**args)
         name = getattr(self, 'NAME', 'object')
         return {
-            'result': self.SERIALIZER(new_obj).data,
+            'result': self.SERIALIZER(new_obj, strict=True).data,
             'message': 'Successfully created new {0}'.format(name)
         }, http.CREATED
 
@@ -105,12 +108,14 @@ class URL(fields.Raw):
         self.params = kwargs
         # All fields need self.attribute
         self.attribute = None
+        self.required = None
 
     def output(self, key, obj):
         param_values = {}
         for name, attr in self.params.iteritems():
             try:
-                param_values[name] = self.get_value(key=tpl(str(attr)), obj=obj)
+                attr_name = tpl(str(attr))
+                param_values[name] = self.get_value(key=attr_name, obj=obj)
             except AttributeError:
                 param_values[name] = attr
         return url_for(self.endpoint, **param_values)
