@@ -5,7 +5,7 @@ utilities.
 import datetime as dt
 from sqlalchemy.orm import relationship
 
-from server.app.extensions import db
+from ..extensions import db
 
 # Alias common SQLAlchemy names
 db = db

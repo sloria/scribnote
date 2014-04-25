@@ -126,16 +126,16 @@ class AbsoluteURL(URL):
 
 AbsoluteUrl = AbsoluteURL
 
-
+# TODO: make signature more consistent with map, filter... recmap(func, d...)
 def rapply(d, func, *args, **kwargs):
-    """Apply a function to a all values in a dictionary, recursively."""
+    """Apply a function to all values in a dictionary, recursively."""
     if isinstance(d, dict):
         return {
-            key: rapply(value, func, **kwargs)
+            key: rapply(value, func, *args, **kwargs)
             for key, value in d.iteritems()
         }
     else:
-        return func(d, **kwargs)
+        return func(d, *args, **kwargs)
 
 
 def _url_val(val, key, obj, **kwargs):
