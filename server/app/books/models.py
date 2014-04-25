@@ -42,6 +42,8 @@ class Author(SurrogatePK, Model):
 class Book(SurrogatePK, Model):
     __tablename__ = 'books'
 
+    _order_by = 'date_created'
+
     title = Col(db.String(255), unique=False, nullable=False)
     isbn = Col(db.String, nullable=True)
     date_created = DefaultDateTimeCol()
