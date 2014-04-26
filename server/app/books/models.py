@@ -31,13 +31,6 @@ class Author(SurrogatePK, Model):
     def __repr__(self):
         return '<Author({self.full_name!r})>'.format(self=self)
 
-    @property
-    def url(self):
-        return url_for('books.author', id=self.id)
-
-    @property
-    def absolute_url(self):
-        return url_for('books.author', id=self.id, _external=True)
 
 class Book(SurrogatePK, Model):
     __tablename__ = 'books'

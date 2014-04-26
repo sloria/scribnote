@@ -2,23 +2,20 @@
 import logging
 
 from flask import Blueprint
-from flask.ext.restful import Api
-from marshmallow import Serializer, fields
+from flask.ext.marshmallow import Serializer, fields
 from webargs import Arg
 
 from ..meta.api import (
-    api_get_or_404,
-    reqparser,
-    Hyperlinks,
-    URL,
+    # api_get_or_404,
+    # reqparser,
     ModelResource,
     ModelListResource,
+    register_api_views,
 )
 from .models import Author, Book
 
 logger = logging.getLogger(__name__)
 blueprint = Blueprint('books', __name__)
-api = Api(blueprint)
 
 # Serializers
 
@@ -26,9 +23,9 @@ class AuthorMarshal(Serializer):
     created = fields.DateTime(attribute='date_created')
 
     # Implement HATEOAS
-    _links = Hyperlinks({
-        'self': URL('books.author', id='<<id>>', _external=True),
-        'collection': URL('books.authors', _external=True),
+    _links = fields.Hyperlinks({
+        'self': fields.URL('books.AuthorResource:get', id='<id>', _external=True),
+        'collection': fields.URL('books.AuthorListResource:get', _external=True),
     })
 
     class Meta:
@@ -38,9 +35,9 @@ class BookMarshal(Serializer):
     created = fields.DateTime(attribute='date_created')
     author = fields.Nested(AuthorMarshal)
 
-    _links = Hyperlinks({
-        'self': URL('books.book', id='<<id>>', _external=True),
-        'collection': URL('books.books', _external=True),
+    _links = fields.Hyperlinks({
+        'self': fields.URL('books.BookResource:get', id='<id>', _external=True),
+        'collection': fields.URL('books.BookListResource:get', _external=True),
     })
 
     class Meta:
@@ -49,12 +46,16 @@ class BookMarshal(Serializer):
 # Views
 
 class AuthorResource(ModelResource):
+    route_base = '/authors/'
+
     MODEL = Author
     SERIALIZER = AuthorMarshal
     NAME = 'author'
 
 
 class AuthorListResource(ModelListResource):
+    route_base = '/authors/'
+
     MODEL = Author
     SERIALIZER = AuthorMarshal
     NAME = 'author'
@@ -64,12 +65,16 @@ class AuthorListResource(ModelListResource):
         'last': Arg(str, required=True),
     }
 
+
 class BookResource(ModelResource):
+    route_base = '/books/'
     MODEL = Book
     SERIALIZER = BookMarshal
     NAME = 'book'
 
+
 class BookListResource(ModelListResource):
+    route_base = '/books/'
 
     MODEL = Book
     SERIALIZER = BookMarshal
@@ -81,8 +86,12 @@ class BookListResource(ModelListResource):
     }
 
 
-api.add_resource(AuthorResource, '/authors/<int:id>', endpoint='author')
-api.add_resource(AuthorListResource, '/authors/', endpoint='authors')
-
-api.add_resource(BookResource, '/books/<int:id>', endpoint='book')
-api.add_resource(BookListResource, '/books/', endpoint='books')
+register_api_views(
+    [
+        AuthorResource,
+        AuthorListResource,
+        BookResource,
+        BookListResource
+    ],
+    blueprint
+)

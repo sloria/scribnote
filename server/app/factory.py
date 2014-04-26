@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 '''The app module, containing the app factory function.'''
 import logging
-from flask import Flask, render_template
+from flask import Flask
+from flask.ext.api import FlaskAPI
 
 from .settings import ProdConfig
 from .extensions import (
@@ -13,7 +14,6 @@ from .extensions import (
     api_manager,
 )
 from . import public, user, books
-from .books.models import Author, Book
 
 logger = logging.getLogger(__name__)
 
@@ -24,7 +24,7 @@ def create_app(config_object=ProdConfig):
 
     :param config_object: The configuration object to use.
     '''
-    app = Flask('commonplace')
+    app = FlaskAPI('commonplace')
     app.config.from_object(config_object)
     register_extensions(app)
     register_blueprints(app)
@@ -46,8 +46,7 @@ def register_blueprints(app):
     ]
     for bp in api_blueprints:
         app.register_blueprint(
-            bp,
-            url_prefix='/api/v1'
+            bp
         )
     # app.register_blueprint(public.views.blueprint)
     # app.register_blueprint(user.views.blueprint)

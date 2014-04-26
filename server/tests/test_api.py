@@ -14,11 +14,11 @@ from .utils import fake
 class TestAuthorResource:
 
     def test_url(self, app):
-        assert url_for('books.author', id=123) == '/api/v1/authors/123'
+        assert url_for('books.AuthorResource:get', id=123) == '/api/authors/123'
 
     def test_get(self, wt):
         author = AuthorFactory()
-        url = url_for('books.author', id=author.id)
+        url = url_for('books.AuthorResource:get', id=author.id)
         res = wt.get(url)
         assert res.status_code == http.OK
         data = res.json['result']
@@ -27,7 +27,7 @@ class TestAuthorResource:
         assert data['created'] == rfcformat(author.date_created)
 
     def test_get_if_author_doesnt_exist(self, wt):
-        url = url_for("books.author", id=123)
+        url = url_for("books.AuthorResource:get", id=123)
         res = wt.get(url, expect_errors=True)
         assert res.status_code == http.NOT_FOUND
         assert res.json['message'] == 'author not found'
@@ -38,10 +38,10 @@ class TestAuthorListResource:
     @pytest.fixture
     def url(self, app):
         """The URL for the author list resource."""
-        return url_for('books.authors')
+        return url_for('books.AuthorListResource:get')
 
     def test_url(self, url):
-        assert url == '/api/v1/authors/'
+        assert url == '/api/authors/'
 
     def test_get(self, wt, url):
         author1, author2 = AuthorFactory(), AuthorFactory()
@@ -82,11 +82,11 @@ class TestAuthorListResource:
 class TestBookResource:
 
     def test_url(self):
-        assert url_for('books.book', id=123) == '/api/v1/books/123'
+        assert url_for('books.BookResource:get', id=123) == '/api/books/123'
 
     def test_get(self, wt):
         book = BookFactory()
-        url = url_for('books.book', id=book.id)
+        url = url_for('books.BookResource:get', id=book.id)
         res = wt.get(url)
         assert res.status_code == http.OK
         data = res.json['result']
@@ -97,7 +97,7 @@ class TestBookResource:
         author = AuthorFactory()
         old_count = Book.query.count()
         first, last = fake.first_name(), fake.last_name()
-        url = url_for('books.books')
+        url = url_for('books.BookListResource:post')
         title = fake.bs()
         res = wt.post_json(url, {'title': title, 'author_id': author.id})
         assert res.status_code == http.CREATED
@@ -110,7 +110,7 @@ class TestBookResource:
         assert latest.author == author
 
     def test_post_requires_author_id(self, wt):
-        url = url_for('books.books')
+        url = url_for('books.BookListResource:get')
         title = fake.bs()
         res = wt.post_json(url, {'title': title}, expect_errors=True)
         assert res.status_code == 400

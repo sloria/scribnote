@@ -8,8 +8,10 @@ Jinja2==2.7.2
 itsdangerous==0.24
 
 # REST API
-Flask-Restful
-marshmallow
+Flask-API
+Flask-Classy
+# Dev versions of flask-marshmallow and webargs
+-e git://github.com/sloria/flask-marshmallow.git@dev#egg=flask-marshmallow
 -e git://github.com/sloria/webargs.git@dev#egg=webargs
 
 # Database

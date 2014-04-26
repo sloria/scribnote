@@ -3,29 +3,44 @@
 marshalling, etc.
 """
 import httplib as http
-import re
 
-from flask import url_for, request
+from flask import request
+from flask.ext.classy import FlaskView
+from flask.ext.api.exceptions import NotFound, APIException
+from webargs import core
 from webargs.flaskparser import FlaskParser
-from marshmallow import fields
 
-from flask.ext.restful import abort as api_abort, Resource
 
+class BadRequestError(APIException):
+    status_code = 400
+    detail = 'Bad request.'
 
 class FlaskAPIParser(FlaskParser):
     """Custom request argument parser from the webargs library that
-    handles API errors with flask-restful's ``abort`` function instead
-    of flask's abort function.
+    handles API errors by raising Flask-API's APIException.
     """
+    TARGET_MAP = {
+        'json': 'parse_json',
+        'querystring': 'parse_querystring',
+        'form': 'parse_form',
+        'headers': 'parse_headers',
+        'cookies': 'parse_cookies',
+        'files': 'parse_files',
+        'data': 'parse_data',
+    }
+
+    def parse_data(self, req, name, arg):
+        return core.get_value(req.data, name, arg.multiple)
+
     def handle_error(self, error):
-        api_abort(400, message=str(error))
+        raise BadRequestError(str(error))
 
 reqparser = FlaskAPIParser()
 use_kwargs = reqparser.use_kwargs
 use_args = reqparser.use_args
 
 
-class ModelResource(Resource):
+class ModelResource(FlaskView):
     """Implements generic HTTP-based CRUD for a given model.
     Must define ``MODEL`` and ``SERIALIZER`` class variables.
     """
@@ -37,13 +52,13 @@ class ModelResource(Resource):
         """Return a single instance."""
         name = getattr(self, 'NAME', 'Resource')
         obj = api_get_or_404(self.MODEL, id,
-            message="{name} not found".format(name=name))
+            error_msg="{name} not found".format(name=name))
         return {
             'result': self.SERIALIZER(obj, strict=True).data,
         }, http.OK
 
 
-class ModelListResource(Resource):
+class ModelListResource(FlaskView):
     """Implements generic HTTP-based collection CRUD for a given model."""
 
     MODEL = None
@@ -61,7 +76,7 @@ class ModelListResource(Resource):
     def post(self):
         """Create a new instance of the resource."""
         if self.ARGS:
-            args = reqparser.parse(self.ARGS, request)
+            args = reqparser.parse(self.ARGS, request, targets=('data', 'json'))
         else:
             args = {}
         new_obj = self.MODEL.create(**args)
@@ -72,116 +87,19 @@ class ModelListResource(Resource):
         }, http.CREATED
 
 
-def api_get_or_404(model, id, **kwargs):
+def api_get_or_404(model, id, error_msg=None):
     """Get a model by its primary key; abort with 404 using Flask-RESTful's
     abort helper.
     """
-    return model.query.get(id) or api_abort(404, **kwargs)
-
-##### marshmallow
-
-_tpl_pattern = re.compile(r'\s*<<\s*(\S*)\s*>>\s*')
-
-def tpl(val):
-    match = _tpl_pattern.match(val)
-    if match:
-        return match.groups()[0]
-    return None
+    obj = model.query.get(id)
+    if not obj:
+        raise NotFound(detail=error_msg)
+    return obj
 
 
-class URL(fields.Raw):
-    """A hyperlink to an endpoint.
+def register_class_views(view_classes, app, route_base=None, route_prefix=None):
+    for each in view_classes:
+        each.register(app, route_base=route_base, route_prefix=route_prefix)
 
-    Usage: ::
-
-        url = URL('author_get', id='<<id>>')
-        absolute_url = URL('author_get', id='<<id>>', _external=True)
-
-    :param str endpoint: Flask endpoint name.
-    :param kwargs: Same keyword arguments as Flask's url_for, except string
-        arguments enclosed in `<< >>` will be interpreted as attributes to pull
-        from the object.
-    """
-
-    def __init__(self, endpoint, **kwargs):
-        self.endpoint = endpoint
-        self.params = kwargs
-        # All fields need self.attribute
-        self.attribute = None
-        self.required = None
-
-    def output(self, key, obj):
-        param_values = {}
-        for name, attr in self.params.iteritems():
-            try:
-                attr_name = tpl(str(attr))
-                param_values[name] = self.get_value(key=attr_name, obj=obj)
-            except AttributeError:
-                param_values[name] = attr
-        return url_for(self.endpoint, **param_values)
-
-Url = URL
-
-class AbsoluteURL(URL):
-
-    def __init__(self, endpoint, **kwargs):
-        kwargs['_external'] = True
-        URL.__init__(self, endpoint=endpoint, **kwargs)
-
-
-AbsoluteUrl = AbsoluteURL
-
-# TODO: make signature more consistent with map, filter... recmap(func, d...)
-def rapply(d, func, *args, **kwargs):
-    """Apply a function to all values in a dictionary, recursively."""
-    if isinstance(d, dict):
-        return {
-            key: rapply(value, func, *args, **kwargs)
-            for key, value in d.iteritems()
-        }
-    else:
-        return func(d, *args, **kwargs)
-
-
-def _url_val(val, key, obj, **kwargs):
-    """Function applied by HyperlinksField to get the correct value in the
-    schema.
-    """
-    if isinstance(val, URL):
-        return val.output(key, obj, **kwargs)
-    else:
-        return val
-
-
-class Hyperlinks(fields.Raw):
-    """Custom marshmallow field that outputs a dictionary of hyperlinks,
-    given a dictionary schema with ``URL`` objects as values.
-
-    Example: ::
-
-        _links = Hyperlinks({
-            'self': URL('author', id='id'),
-            'collection': URL('author_list'),
-            }
-        })
-
-    ``URL`` objects can be nested within the dictionary. ::
-
-        _links = Hyperlinks({
-            'self': {
-                'href': URL('book', id=<<id>>),
-                'title': 'book detail'
-            }
-        })
-
-    :param dict schema: A dict that maps endpoint names to an endpoint and params.
-        The ``endpoint`` key is the Flask endpoint and ``params`` are the parameters
-        passed to ``Flask.url_for``.
-    """
-
-    def __init__(self, schema, **kwargs):
-        super(Hyperlinks, self).__init__(**kwargs)
-        self.schema = schema
-
-    def output(self, key, obj):
-        return rapply(self.schema, _url_val, key=key, obj=obj)
+def register_api_views(view_classes, app, route_prefix='/api/'):
+    register_class_views(view_classes, app, route_prefix=route_prefix)
