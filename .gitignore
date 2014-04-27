@@ -45,3 +45,6 @@ docs/_build
 # Virtualenvs
 env
 env*
+
+server/*.db
+server/src/
