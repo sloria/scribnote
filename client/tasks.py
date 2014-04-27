@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
-from invoke import task
+
+import os
+
+from invoke import task, run
 
 
 @task
-def build():
-    print("building client app")
+def serve():
+    run('grunt serve', pty=True)
