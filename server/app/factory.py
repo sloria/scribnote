@@ -13,7 +13,7 @@ from .extensions import (
     migrate,
     api_manager,
 )
-from . import public, user, books
+from . import main, books
 
 logger = logging.getLogger(__name__)
 
@@ -43,10 +43,12 @@ def register_extensions(app):
 def register_blueprints(app):
     api_blueprints = [
         books.views.blueprint,
+        main.views.blueprint,
     ]
     for bp in api_blueprints:
         app.register_blueprint(
-            bp
+            bp,
+            url_prefix='/api'
         )
     # app.register_blueprint(public.views.blueprint)
     # app.register_blueprint(user.views.blueprint)

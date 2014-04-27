@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from flask import url_for
 
 from ..meta.database import (
     Model,
@@ -17,7 +16,7 @@ class Author(SurrogatePK, Model):
 
     first = Col(db.Unicode)
     last = Col(db.Unicode)
-    date_created = DefaultDateTimeCol()
+    date_created = DefaultDateTimeCol(nullable=False)
 
     _order_by = 'date_created'
 
