@@ -11,6 +11,7 @@ itsdangerous==0.24
 Flask-API
 Flask-Classy
 # Dev versions of flask-marshmallow and webargs
+-e git://github.com/sloria/marshmallow.git@dev#egg=marshmallow
 -e git://github.com/sloria/flask-marshmallow.git@dev#egg=flask-marshmallow
 -e git://github.com/sloria/webargs.git@dev#egg=webargs
 

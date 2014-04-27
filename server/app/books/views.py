@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import logging
 
-from flask import Blueprint
+from flask import Blueprint, url_for
 from flask.ext.marshmallow import Serializer, fields
 from webargs import Arg
 
@@ -10,7 +10,7 @@ from ..meta.api import (
     # reqparser,
     ModelResource,
     ModelListResource,
-    register_api_views,
+    register_class_views,
 )
 from .models import Author, Book
 
@@ -24,58 +24,74 @@ class AuthorMarshal(Serializer):
 
     # Implement HATEOAS
     _links = fields.Hyperlinks({
-        'self': fields.URL('books.AuthorResource:get', id='<id>', _external=True),
-        'collection': fields.URL('books.AuthorListResource:get', _external=True),
+        'self': fields.AbsoluteURL('books.AuthorDetail:get', id='<id>'),
+        'update': fields.AbsoluteURL('books.AuthorDetail:put', id='<id>'),
+        'collection': fields.AbsoluteURL('books.AuthorList:get'),
     })
 
     class Meta:
-        additional = ('first', 'last')
+        additional = ('id', 'first', 'last')
 
 class BookMarshal(Serializer):
     created = fields.DateTime(attribute='date_created')
     author = fields.Nested(AuthorMarshal)
 
     _links = fields.Hyperlinks({
-        'self': fields.URL('books.BookResource:get', id='<id>', _external=True),
-        'collection': fields.URL('books.BookListResource:get', _external=True),
+        'self': fields.URL('books.BookDetail:get', id='<id>', _external=True),
+        'collection': fields.URL('books.BookList:get', _external=True),
     })
 
     class Meta:
-        additional = ('title', 'isbn')
+        additional = ('id', 'title', 'isbn')
 
 # Views
 
-class AuthorResource(ModelResource):
+AUTHOR_ARGS = {
+    'first': Arg(str, allow_missing=True),
+    'last': Arg(str, allow_missing=True)
+}
+
+class AuthorDetail(ModelResource):
     route_base = '/authors/'
 
+    BLUEPRINT = 'books'
     MODEL = Author
     SERIALIZER = AuthorMarshal
     NAME = 'author'
 
+    ARGS = AUTHOR_ARGS
 
-class AuthorListResource(ModelListResource):
+
+class AuthorList(ModelListResource):
     route_base = '/authors/'
 
+    BLUEPRINT = 'books'
     MODEL = Author
     SERIALIZER = AuthorMarshal
     NAME = 'author'
 
-    ARGS = {
-        'first': Arg(str, required=True),
-        'last': Arg(str, required=True),
-    }
+    ARGS = AUTHOR_ARGS
+
+    def get_links(self):
+        return {
+            'create': url_for('books.AuthorList:get', _external=True),
+            'books': url_for('books.BookList:get', _external=True)
+        }
 
 
-class BookResource(ModelResource):
+class BookDetail(ModelResource):
     route_base = '/books/'
+    BLUEPRINT = 'books'
     MODEL = Book
     SERIALIZER = BookMarshal
     NAME = 'book'
 
 
-class BookListResource(ModelListResource):
-    route_base = '/books/'
 
+class BookList(ModelListResource):
+    """Return a list of books."""
+    route_base = '/books/'
+    BLUEPRINT = 'books'
     MODEL = Book
     SERIALIZER = BookMarshal
     NAME = 'book'
@@ -85,13 +101,19 @@ class BookListResource(ModelListResource):
         'author_id': Arg(int, required=True),
     }
 
+    def get_links(self):
+        return {
+            'create': url_for('books.BookList:post', _external=True),
+            'authors': url_for('books.AuthorList:get', _external=True),
+        }
 
-register_api_views(
+
+register_class_views(
     [
-        AuthorResource,
-        AuthorListResource,
-        BookResource,
-        BookListResource
+        AuthorDetail,
+        AuthorList,
+        BookDetail,
+        BookList
     ],
     blueprint
 )

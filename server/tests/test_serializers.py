@@ -23,9 +23,9 @@ class TestAuthorMarshal:
         author = AuthorFactory()
         data = AuthorMarshal(author, strict=True).data
         links = data['_links']
-        assert links['self'] == url_for('books.AuthorResource:get',
+        assert links['self'] == url_for('books.AuthorDetail:get',
             id=author.id, _external=True)
-        assert links['collection'] == url_for('books.AuthorListResource:get',
+        assert links['collection'] == url_for('books.AuthorList:get',
             _external=True)
 
 
@@ -42,7 +42,7 @@ class TestBookMarshal:
         book = BookFactory()
         data = BookMarshal(book, strict=True).data
         links = data['_links']
-        assert links['self'] == url_for('books.BookResource:get',
+        assert links['self'] == url_for('books.BookDetail:get',
             id=book.id, _external=True)
-        assert links['collection'] == url_for('books.BookListResource:get',
+        assert links['collection'] == url_for('books.BookList:get',
             _external=True)

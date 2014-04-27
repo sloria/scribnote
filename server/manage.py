@@ -19,8 +19,9 @@ def _make_context():
     from app.books.models import Author, Book
     from app.user.models import User
     from app.meta.database import db
-    from flask import url_for
+    from flask import url_for, current_app
     from tests.utils import fake
+    app = current_app
     return locals()
 
 manager = Manager(app)
