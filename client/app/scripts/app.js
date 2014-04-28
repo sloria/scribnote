@@ -11,6 +11,10 @@ var routeConfig = function($routeProvider) {
       templateUrl: 'views/books.html',
       controller: 'BooksCtrl'
     })
+    .when('/books/:id', {
+      templateUrl: 'views/book.html',
+      controller: 'BookDetailCtrl'
+    })
     .otherwise({
       redirectTo: '/'
     });

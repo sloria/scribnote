@@ -10,7 +10,7 @@
   </thead>
   <tbody ng-repeat="book in BooksCtrl.books">
     <tr>
-      <td>{{book.title}}</td>
+      <td><a ng-href="#/books/{{book.id}}">{{book.title}}</a></td>
       <td>{{book.author.last}}, {{book.author.first}}</td>
     </tr>
   </tbody>
