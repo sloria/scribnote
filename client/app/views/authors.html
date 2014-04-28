@@ -1,0 +1,14 @@
+<h1>Authors</h1>
+
+<table class="table author-table">
+  <thead>
+    <tr>
+      <th>Name</th>
+    </tr>
+  </thead>
+  <tbody ng-repeat="author in authors">
+    <tr>
+      <td><a ng-href="#/authors/{{author.id}}">{{author.last}}, {{author.first}}</a></td>
+    </tr>
+  </tbody>
+</table>

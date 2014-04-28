@@ -1,0 +1,13 @@
+
+<h1 class="author-heading">{{author.first}} {{author.last}}</h1>
+
+<div ng-show="author.books.length" class="author-books">
+  <h3>Books</h3>
+  <ul class="book-list" ng-repeat="book in author.books">
+    <li><a ng-href="#/books/{{book.id}}">{{book.title}}</a></li>
+  </ul>
+</div>
+
+<div ng-show="!author.books.length">
+  <em>No books by this author.</em>
+</div>
