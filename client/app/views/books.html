@@ -1,17 +1,45 @@
 
 <h1>Books</h1>
 
+<button ng-click="BooksCtrl.addBook()" class="btn btn-default">Add</button>
 <table class="table book-table">
+
   <thead>
     <tr>
       <th>Title</th>
       <th>Author</th>
     </tr>
   </thead>
-  <tbody ng-repeat="book in BooksCtrl.books">
-    <tr>
+
+  <tbody>
+    <tr ng-repeat="book in BooksCtrl.books">
       <td><a ng-href="#/books/{{book.id}}">{{book.title}}</a></td>
-      <td>{{book.author.last}}, {{book.author.first}}</td>
+      <td>{{book.author.first}} {{book.author.last}}</td>
+    </tr>
+    <tr ng-show="BooksCtrl.addForm.active">
+      <td>
+        <input ng-model="BooksCtrl.addForm.title"
+               placeholder="New book title..."
+               class="form-control" type="text">
+      </td>
+      <td>
+        <form
+              ng-submit="BooksCtrl.addForm.submit()"
+              class="form-inline">
+          <input ng-model="BooksCtrl.addForm.first"
+                  class="form-control" style="width: 40%"
+                  placeholder="Author first name"
+                  type="text" required>
+          <input ng-model="BooksCtrl.addForm.last"
+                  class="form-control" style="width: 40%"
+                  placeholder="Author last name"
+                  type="text" required>
+          <input ng-submit="BooksCtrl.addForm.submit()"
+                  type="submit" class="btn btn-success">
+        </form>
+      </td>
     </tr>
   </tbody>
 </table>
+
+</div>
