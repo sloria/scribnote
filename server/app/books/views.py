@@ -19,8 +19,21 @@ blueprint = Blueprint('books', __name__)
 
 # Serializers
 
+class BaseBookMarshal(Serializer):
+    created = fields.DateTime(attribute='date_created')
+
+    _links = fields.Hyperlinks({
+        'self': fields.URL('books.BookDetail:get', id='<id>', _external=True),
+        'collection': fields.URL('books.BookList:get', _external=True),
+    })
+
+    class Meta:
+        additional = ('id', 'title', 'isbn')
+
+
 class AuthorMarshal(Serializer):
     created = fields.DateTime(attribute='date_created')
+    books = fields.Nested(BaseBookMarshal, many=True)
 
     # Implement HATEOAS
     _links = fields.Hyperlinks({
@@ -32,17 +45,8 @@ class AuthorMarshal(Serializer):
     class Meta:
         additional = ('id', 'first', 'last')
 
-class BookMarshal(Serializer):
-    created = fields.DateTime(attribute='date_created')
+class BookMarshal(BaseBookMarshal):
     author = fields.Nested(AuthorMarshal)
-
-    _links = fields.Hyperlinks({
-        'self': fields.URL('books.BookDetail:get', id='<id>', _external=True),
-        'collection': fields.URL('books.BookList:get', _external=True),
-    })
-
-    class Meta:
-        additional = ('id', 'title', 'isbn')
 
 # Views
 

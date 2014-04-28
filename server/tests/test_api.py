@@ -25,6 +25,7 @@ class TestAuthorResource:
         assert data['first'] == author.first
         assert data['last'] == author.last
         assert data['created'] == rfcformat(author.date_created)
+        assert 'books' in data
 
     def test_get_if_author_doesnt_exist(self, wt):
         url = url_for("books.AuthorDetail:get", id=123)
