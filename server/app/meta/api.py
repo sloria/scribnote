@@ -58,6 +58,9 @@ class APIView(FlaskView):
             args = {}
         return args
 
+    def serialize(self, obj, **kwargs):
+        return self.SERIALIZER(obj, **kwargs).data
+
     def get_name(self):
         return getattr(self, 'NAME', 'object')
 

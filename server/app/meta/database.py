@@ -4,6 +4,7 @@ utilities.
 """
 import datetime as dt
 from sqlalchemy.orm import relationship
+from sqlalchemy.exc import OperationalError
 
 from ..extensions import db
 
@@ -22,6 +23,20 @@ class CRUDMixin(object):
         """Create a new record and save it the database."""
         instance = cls(**kwargs)
         return instance.save()
+
+    @classmethod
+    def get_or_create(cls, commit=True, **kwargs):
+        query = cls.query.filter_by(**kwargs)
+        if not query.count():
+            instance = cls(**kwargs)
+            instance.save(commit=commit)
+            created = True
+        else:
+            if query.count() > 1:
+                raise OperationalError('Multiple results found')
+            instance = query.first()
+            created = False
+        return instance, created
 
     def update(self, commit=True, **kwargs):
         """Update specific fields of a record."""

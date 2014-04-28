@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 import logging
+import httplib as http
 
 from flask import Blueprint, url_for
 from flask.ext.marshmallow import Serializer, fields
 from webargs import Arg
 
 from ..meta.api import (
-    # api_get_or_404,
+    api_get_or_404,
     # reqparser,
     ModelResource,
     ModelListResource,
@@ -46,7 +47,7 @@ class AuthorMarshal(Serializer):
         additional = ('id', 'first', 'last')
 
 class BookMarshal(BaseBookMarshal):
-    author = fields.Nested(AuthorMarshal)
+    author = fields.Nested(AuthorMarshal, allow_null=True)
 
 # Views
 
@@ -91,7 +92,6 @@ class BookDetail(ModelResource):
     NAME = 'book'
 
 
-
 class BookList(ModelListResource):
     """Return a list of books."""
     route_base = '/books/'
@@ -102,7 +102,9 @@ class BookList(ModelListResource):
 
     ARGS = {
         'title': Arg(str, required=True),
-        'author_id': Arg(int, required=True),
+        'author_id': Arg(int, required=False),
+        'author_first': Arg(str),
+        'author_last': Arg(str),
     }
 
     def get_links(self):
@@ -110,6 +112,24 @@ class BookList(ModelListResource):
             'create': url_for('books.BookList:post', _external=True),
             'authors': url_for('books.AuthorList:get', _external=True),
         }
+
+    def post(self):
+        args = self.parse_request()
+        if args['author_id']:
+            author = api_get_or_404(Author, args['author_id'])
+        elif args['author_first'] or args['author_last']:
+            author, created = Author.get_or_create(
+                first=args['author_first'],
+                last=args['author_last']
+            )
+        else:
+            author = None
+        new_book = self.MODEL(title=args['title'], author=author)
+        new_book.save()
+        return {
+            'result': self.serialize(new_book),
+            'message': 'Successfully created new book',
+        }, http.CREATED
 
 
 register_class_views(

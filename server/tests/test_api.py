@@ -119,7 +119,6 @@ class TestBookResource:
     def test_post_creates_book(self, wt):
         author = AuthorFactory()
         old_count = Book.query.count()
-        first, last = fake.first_name(), fake.last_name()
         url = url_for('books.BookList:post')
         title = fake.bs()
         res = wt.post_json(url, {'title': title, 'author_id': author.id})
@@ -132,8 +131,33 @@ class TestBookResource:
         assert latest.title == title
         assert latest.author == author
 
-    def test_post_requires_author_id(self, wt):
-        url = url_for('books.BookList:get')
+    def test_post_with_author_name(self, wt):
+        author = AuthorFactory()
+
+        url = url_for('books.BookList:post')
         title = fake.bs()
-        res = wt.post_json(url, {'title': title}, expect_errors=True)
-        assert res.status_code == 400
+        res = wt.post_json(url,
+            {
+                'title': title,
+                'author_first': author.first,
+                'author_last': author.last,
+            }
+        )
+        assert res.status_code == http.CREATED
+        book = Book.get_latest()
+        assert book.title == title
+        latest_book_author = book.author
+        assert author == latest_book_author
+
+    def test_post_with_no_author(self, wt):
+        url = url_for('books.BookList:post')
+        title = fake.bs()
+        res = wt.post_json(url,
+            {
+                'title': title
+            }
+        )
+        assert res.status_code == http.CREATED
+        book = Book.get_latest()
+        assert book.title == title
+        assert book.author is None
