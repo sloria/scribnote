@@ -20,35 +20,42 @@
               ng-really-message="Are you sure you want to delete {{book.title}}?"
               ng-really="delete(book, $index)">&times;</a></td>
     </tr>
-    <tr ng-show="addForm.active">
-      <td>
-        <input ng-model="addForm.title"
-               placeholder="New book title..."
-               class="form-control" type="text">
-      </td>
-      <td>
-        <form
-              ng-submit="addForm.submit()"
-              class="form-inline">
-          <input ng-model="addForm.first"
-                  class="form-control" style="width: 40%"
-                  placeholder="Author first name"
-                  type="text" required>
-          <input ng-model="addForm.last"
-                  class="form-control" style="width: 40%"
-                  placeholder="Author last name"
-                  type="text" required>
-          <button ng-click="addForm.deactivate()"
-                  class="btn btn-default">Cancel</button>
-          <input ng-submit="addForm.submit()"
-                  type="submit" class="btn btn-success">
-
-        </form>
-      </td>
-    </tr>
   </tbody>
 
-  <p class="text-danger">{{error}}</p>
 </table>
+  <div ng-show="addForm.active">
+    <form
+          ng-submit="addForm.submit()"
+          class="form-inline" role="form">
+      <div class="form-group">
+        <input ng-model="addForm.title"
+               sync-focus="addForm.active"
+               placeholder="Book title..."
+               class="form-control" type="text"
+               required autofocus>
+      </div>
+      <div class="form-group">
 
+        <input ng-model="addForm.first"
+                  class="form-control"
+                  placeholder="Author first name..."
+                  type="text">
+      </div>
+
+      <div class="form-group">
+
+        <input ng-model="addForm.last"
+                  class="form-control"
+                  placeholder="Author last name..."
+                  type="text">
+      </div>
+      <button ng-click="addForm.deactivate()"
+                class="btn btn-default">Cancel</button>
+      <input ng-submit="addForm.submit()"
+                type="submit" class="btn btn-success">
+
+    </form>
+  </div>
+
+  <p class="text-danger">{{error}}</p>
 </div>
