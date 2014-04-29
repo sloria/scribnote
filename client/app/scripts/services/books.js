@@ -16,7 +16,7 @@ app.factory('Book', function ($resource, $http, serverConfig) {
     });
   };
 
-  // instance mthod to create new book
+  // instance method to create new book
   Book.create = function(params) {
     return $http.post(baseURL, params).then(function(resp) {
         return new Book(resp.data.result);
@@ -31,6 +31,11 @@ app.factory('Book', function ($resource, $http, serverConfig) {
             return new Book(bookData);
         })
     });
+  };
+
+  // Delete a book
+  Book.delete = function(id) {
+    return $http.delete(baseURL + id);
   };
 
   return Book;

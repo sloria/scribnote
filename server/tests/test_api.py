@@ -161,3 +161,12 @@ class TestBookResource:
         book = Book.get_latest()
         assert book.title == title
         assert book.author is None
+
+    def test_delete(self, wt):
+        book = BookFactory()
+        old_length = Book.query.count()
+        url = url_for('books.BookDetail:delete', id=book.id)
+        res = wt.delete(url)
+
+        new_length = Book.query.count()
+        assert new_length == old_length - 1

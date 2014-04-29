@@ -104,6 +104,13 @@ class ModelResource(APIView):
         })
         return res, http.OK
 
+    def delete(self, id):
+        name = getattr(self, 'NAME', 'Resource')
+        obj = api_get_or_404(self.MODEL, id,
+            error_msg="{name} not found".format(name=name))
+        obj.delete(commit=True)
+        return {}
+
 
 class ModelListResource(APIView):
     """Implements generic HTTP-based collection CRUD for a given model."""

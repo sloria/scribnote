@@ -6,9 +6,9 @@
       <th>Name</th>
     </tr>
   </thead>
-  <tbody ng-repeat="author in authors">
+  <tbody ng-repeat="author in authors | orderBy:'last'">
     <tr>
-      <td><a ng-href="#/authors/{{author.id}}">{{author.last}}, {{author.first}}</a></td>
+      <td><a ng-href="#/authors/{{author.id}}">{{author | authorName:true}}</a></td>
     </tr>
   </tbody>
 </table>

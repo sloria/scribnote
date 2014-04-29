@@ -1,7 +1,7 @@
 
 <h1>Books</h1>
 
-<button ng-click="BooksCtrl.addBook()" class="btn btn-default">Add</button>
+<button ng-click="addForm.activate()" class="btn btn-default">Add</button>
 <table class="table book-table">
 
   <thead>
@@ -13,37 +13,42 @@
   </thead>
 
   <tbody>
-    <tr ng-repeat="book in BooksCtrl.books">
+    <tr ng-repeat="book in books | orderBy:'title'">
       <td><a ng-href="#/books/{{book.id}}">{{book.title}}</a></td>
-      <td>{{book.author.first}} {{book.author.last}}</td>
-      <td>&times;</td>
+      <td>{{book.author | authorName}}</td>
+      <td><a style="cursor: pointer"
+              ng-really-message="Are you sure you want to delete {{book.title}}?"
+              ng-really="delete(book, $index)">&times;</a></td>
     </tr>
-    <tr ng-show="BooksCtrl.addForm.active">
+    <tr ng-show="addForm.active">
       <td>
-        <input ng-model="BooksCtrl.addForm.title"
+        <input ng-model="addForm.title"
                placeholder="New book title..."
                class="form-control" type="text">
       </td>
       <td>
         <form
-              ng-submit="BooksCtrl.addForm.submit()"
+              ng-submit="addForm.submit()"
               class="form-inline">
-          <input ng-model="BooksCtrl.addForm.first"
+          <input ng-model="addForm.first"
                   class="form-control" style="width: 40%"
                   placeholder="Author first name"
                   type="text" required>
-          <input ng-model="BooksCtrl.addForm.last"
+          <input ng-model="addForm.last"
                   class="form-control" style="width: 40%"
                   placeholder="Author last name"
                   type="text" required>
-          <input ng-submit="BooksCtrl.addForm.submit()"
+          <button ng-click="addForm.deactivate()"
+                  class="btn btn-default">Cancel</button>
+          <input ng-submit="addForm.submit()"
                   type="submit" class="btn btn-success">
+
         </form>
       </td>
     </tr>
   </tbody>
 
-  <p class="text-danger">{{BooksCtrl.error}}</p>
+  <p class="text-danger">{{error}}</p>
 </table>
 
 </div>

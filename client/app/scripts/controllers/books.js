@@ -3,48 +3,64 @@
 var app = angular.module('appApp');
 
 app.controller('BooksCtrl', function ($scope, Book) {
-  var self = this;
 
-  self.error = null;
-  self.books = [];
+  $scope.error = null;
+  $scope.books = [];
   Book.query().then(function(books) {
-    self.books = books;
+    $scope.books = books;
   }, function(error) {
-    self.error = 'Could not fetch books. Please try again later.';
+    $scope.error = 'Could not fetch books. Please try again later.';
   });
 
-  self.addForm = {
+  $scope.addForm = {
     active: false,
     first: null,
     last: null,
     title: null,
+    activate: function() {
+      $scope.addForm.active = true;
+    },
+    deactivate: function() {
+      $scope.addForm.active = false;
+    },
     submit: function() {
-      Book.create({
+      var bookPromise = Book.create({
         title: this.title,
         author_first: this.first,
         author_last: this.last
       })
-      .then(function(newBook) {
-        self.books.push(newBook);
-        self.addForm.active = false;
+
+      bookPromise.then(function(newBook) {
+        $scope.books.push(newBook);
+        $scope.addForm.active = false;
+      }, function(error) {
+        $scope.error('An error occurred while creating the book. Please try again later.');
       });
     }
   };
 
-
-
-  self.addBook = function() {
-    self.addForm.active = true;
+  $scope.delete = function(book, index) {
+    Book.delete(book.id).then(function() {
+      $scope.books.splice(index, 1);
+    }, function(error) {
+      console.error(error);
+      $scope.error('An error occurred on the server.');
+    });
   };
-  // Namespace controller
-  $scope.BooksCtrl = self;
+
 });
 
 
 app.controller('BookDetailCtrl', function($scope, $routeParams, Book) {
-  Book.get($routeParams.id).then(function(book) {
-    $scope.book = book;
-  }, function(error) {
-    console.log('Could not retrieve book');
-  })
+  // Initialize variables
+  $scope.book = {};
+  $scope.author = {};
+  Book.get($routeParams.id)
+    .then(function(book) {
+      $scope.book = book;
+      $scope.author = book.author;
+    }, function(error) {
+      console.log('Could not retrieve book');
+  });
+
 });
