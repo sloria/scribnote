@@ -35,6 +35,10 @@
         <h3 class="brand text-muted">scribnote.io</h3>
       </div>
 
+      <div>
+        <alert ng-repeat="alert in alerts" type="alert.type" close="alert.close()">{{alert.msg}}</alert>
+      </div>
+
       <div ng-view=""></div>
 
 
@@ -57,6 +61,7 @@
     <script src="bower_components/bootstrap/dist/js/bootstrap.js"></script>
     <script src="bower_components/angular-resource/angular-resource.js"></script>
     <script src="bower_components/angular-route/angular-route.js"></script>
+    <script src="bower_components/angular-bootstrap/ui-bootstrap-tpls.js"></script>
     <!-- endbower -->
     <!-- endbuild -->
 
@@ -70,6 +75,7 @@
         <script src="scripts/directives/ng-really.js"></script>
         <script src="scripts/filters/authorname.js"></script>
         <script src="scripts/directives/syncfocus.js"></script>
+        <script src="scripts/services/appalert.js"></script>
         <!-- endbuild -->
 </body>
 </html>

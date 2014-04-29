@@ -2,7 +2,7 @@
 
 var app = angular.module('appApp');
 
-app.controller('BooksCtrl', function ($scope, Book) {
+app.controller('BooksCtrl', function ($scope, Book, AppAlert) {
 
   $scope.error = null;
   $scope.books = [];
@@ -33,6 +33,7 @@ app.controller('BooksCtrl', function ($scope, Book) {
       bookPromise.then(function(newBook) {
         $scope.books.push(newBook);
         $scope.addForm.active = false;
+        AppAlert.add('success', 'Added book.');
       }, function(error) {
         $scope.error('An error occurred while creating the book. Please try again later.');
       });
@@ -42,6 +43,7 @@ app.controller('BooksCtrl', function ($scope, Book) {
   $scope.delete = function(book, index) {
     Book.delete(book.id).then(function() {
       $scope.books.splice(index, 1);
+      AppAlert.add('warning', 'Deleted book.');
     }, function(error) {
       console.error(error);
       $scope.error('An error occurred on the server.');

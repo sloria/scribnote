@@ -2,7 +2,7 @@
 
 var app = angular.module('appApp');
 
-app.factory('Book', function ($resource, $http, serverConfig) {
+app.factory('Book', function ($resource, $http, serverConfig, AppAlert) {
   var baseURL = serverConfig.DOMAIN + '/api/books/';
 
   function Book(data) {
@@ -19,6 +19,7 @@ app.factory('Book', function ($resource, $http, serverConfig) {
   // instance method to create new book
   Book.create = function(params) {
     return $http.post(baseURL, params).then(function(resp) {
+
         return new Book(resp.data.result);
     });
   };
