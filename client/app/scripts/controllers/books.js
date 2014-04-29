@@ -2,8 +2,16 @@
 
 var app = angular.module('appApp');
 
-app.controller('BooksCtrl', function ($scope, Books) {
+app.controller('BooksCtrl', function ($scope, Book) {
   var self = this;
+
+  self.error = null;
+  self.books = [];
+  Book.query().then(function(books) {
+    self.books = books;
+  }, function(error) {
+    self.error = 'Could not fetch books. Please try again later.';
+  });
 
   self.addForm = {
     active: false,
@@ -11,18 +19,19 @@ app.controller('BooksCtrl', function ($scope, Books) {
     last: null,
     title: null,
     submit: function() {
-      var payload = {
+      Book.create({
         title: this.title,
         author_first: this.first,
         author_last: this.last
-      };
-      console.log(payload);
+      })
+      .then(function(newBook) {
+        self.books.push(newBook);
+        self.addForm.active = false;
+      });
     }
   };
 
-  Books.query(function(response) {
-    self.books = response.result;
-  });
+
 
   self.addBook = function() {
     self.addForm.active = true;
@@ -32,9 +41,10 @@ app.controller('BooksCtrl', function ($scope, Books) {
 });
 
 
-app.controller('BookDetailCtrl', function($scope, $routeParams, Books) {
-  Books.get({id: $routeParams.id}, function(response) {
-    $scope.book = response.result;
-    $scope.author = response.result.author;
-  });
+app.controller('BookDetailCtrl', function($scope, $routeParams, Book) {
+  Book.get($routeParams.id).then(function(book) {
+    $scope.book = book;
+  }, function(error) {
+    console.log('Could not retrieve book');
+  })
 });

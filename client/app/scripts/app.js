@@ -33,6 +33,7 @@ var routeConfig = function($routeProvider) {
 
 app.config(routeConfig);
 
+
 app.value('serverConfig', {
   DOMAIN: 'http://localhost:5000'
 });
