@@ -56,7 +56,8 @@ def register_blueprints(app):
     ]
     for bp in api_blueprints:
         app.register_blueprint(
-            bp, url_prefix='/api'
+            bp,
+            # url_prefix='/api'
         )
     # app.register_blueprint(public.views.blueprint)
     # app.register_blueprint(user.views.blueprint)
