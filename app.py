@@ -1,4 +1,5 @@
-
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 from werkzeug.wsgi import DispatcherMiddleware
 
 from server.app.settings import DevConfig

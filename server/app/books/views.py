@@ -2,7 +2,7 @@
 import logging
 import httplib as http
 
-from flask import Blueprint, url_for
+from flask import Blueprint, url_for, request
 from flask.ext.marshmallow import Serializer, fields
 from webargs import Arg
 
@@ -82,6 +82,18 @@ class AuthorList(ModelListResource):
             'create': url_for('books.AuthorList:get', _external=True),
             'books': url_for('books.BookList:get', _external=True)
         }
+
+    def get(self):
+        if request.args.get('all'):
+            authors = Author.query.all()
+        else:
+            authors = Author.query.filter(Author.books.any()).all()
+        resp = {
+            'result': self.SERIALIZER(authors, many=True).data,
+        }
+        resp.update(self.get_links())
+        return resp, http.OK
+
 
 
 class BookDetail(ModelResource):

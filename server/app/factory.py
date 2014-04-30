@@ -3,7 +3,6 @@
 import logging
 from flask import Flask, make_response
 from flask.ext.api import FlaskAPI
-from werkzeug.wsgi import DispatcherMiddleware
 
 from .settings import ProdConfig
 from .extensions import (
@@ -25,18 +24,18 @@ def create_app(config_object=ProdConfig):
 
     :param config_object: The configuration object to use.
     '''
-
     api = FlaskAPI('scribnote_api', static_folder='../client/app/')
     api.config.from_object(config_object)
     register_extensions(api)
     register_blueprints(api)
 
-    @api.after_request
-    def after_request(data):
-        resp = make_response(data)
-        resp.headers['Access-Control-Allow-Headers'] = 'Origin, X-RequestedWith,Content-Type,Accept'
-        resp.headers['Access-Control-Allow-Origin'] = '*'
-        return resp
+    # Make api cross-domain accessible
+    # @api.after_request
+    # def after_request(data):
+    #     resp = make_response(data)
+    #     resp.headers['Access-Control-Allow-Headers'] = 'Origin, X-RequestedWith,Content-Type,Accept'
+    #     resp.headers['Access-Control-Allow-Origin'] = '*'
+    #     return resp
     return api
 
 

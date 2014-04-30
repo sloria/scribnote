@@ -13,9 +13,6 @@ from .utils import fake
 @pytest.mark.usefixtures('db')
 class TestAuthorResource:
 
-    def test_url(self, app):
-        assert url_for('books.AuthorDetail:get', id=123) == '/api/authors/123'
-
     def test_get(self, wt):
         author = AuthorFactory()
         url = url_for('books.AuthorDetail:get', id=author.id)
@@ -63,15 +60,21 @@ class TestAuthorListResource:
         """The URL for the author list resource."""
         return url_for('books.AuthorList:get')
 
-    def test_url(self, url):
-        assert url == '/api/authors/'
-
     def test_get(self, wt, url):
         author1, author2 = AuthorFactory(), AuthorFactory()
+        book1, book2 = BookFactory(author=author1), BookFactory(author=author2)
         res = wt.get(url)
         assert res.status_code == http.OK
         data = res.json['result']
         assert len(data) == Author.query.count()
+
+    def test_get_excludes_authors_with_no_books(self, wt, url):
+        author1, author2 = AuthorFactory(), AuthorFactory()
+        book1 = BookFactory(author=author1)
+        res = wt.get(url)
+        assert len(res.json['result']) == 1
+        res = wt.get(url + '?all=1')
+        assert len(res.json['result']) == 2
 
     def test_post_creates_author(self, wt, url):
         old_count = Author.query.count()
@@ -103,9 +106,6 @@ class TestAuthorListResource:
 
 @pytest.mark.usefixtures('db')
 class TestBookResource:
-
-    def test_url(self):
-        assert url_for('books.BookDetail:get', id=123) == '/api/books/123'
 
     def test_get(self, wt):
         book = BookFactory()
@@ -170,3 +170,4 @@ class TestBookResource:
 
         new_length = Book.query.count()
         assert new_length == old_length - 1
+
