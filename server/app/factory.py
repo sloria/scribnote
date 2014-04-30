@@ -13,7 +13,7 @@ from .extensions import (
     migrate,
     api_manager,
 )
-from . import main, books
+from . import main, books, notes
 
 logger = logging.getLogger(__name__)
 
@@ -54,6 +54,7 @@ def register_blueprints(app):
     api_blueprints = [
         books.views.blueprint,
         main.views.blueprint,
+        notes.views.blueprint,
     ]
     for bp in api_blueprints:
         app.register_blueprint(

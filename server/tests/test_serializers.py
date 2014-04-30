@@ -7,7 +7,9 @@ from flask import url_for
 from marshmallow import pprint
 
 from server.app.books.views import AuthorMarshal, BookMarshal
-from .factories import AuthorFactory, BookFactory
+from server.app.notes.views import NoteMarshal
+from server.app.notes.models import Note
+from .factories import AuthorFactory, BookFactory, NoteFactory
 
 @pytest.mark.usefixtures('db')
 class TestAuthorMarshal:
@@ -46,3 +48,13 @@ class TestBookMarshal:
             id=book.id, _external=True)
         assert links['collection'] == url_for('books.BookList:get',
             _external=True)
+
+
+@pytest.mark.usefixtures('db')
+class TestNoteMarshal:
+
+    def test_serialize_single(self):
+        note = NoteFactory()
+        data = NoteMarshal(note, strict=True).data
+        assert data['text'] == note.text
+        assert 'created' in data

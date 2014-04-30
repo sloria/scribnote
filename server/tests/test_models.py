@@ -6,7 +6,9 @@ from flask import url_for
 import pytest
 
 from server.app.user.models import User, Role
-from server.app.books.models import Book, Author, Note
+from server.app.books.models import Book, Author
+from server.app.notes.models import Note
+
 from .factories import UserFactory, BookFactory, AuthorFactory
 from .utils import fake
 
@@ -106,6 +108,6 @@ class TestNote:
 
     def test_attributes(self):
         text = fake.paragraph()
-        note = Note.create(text)
+        note = Note.create(text=text)
         assert note.text == text
-        assert isinstance()
+        assert isinstance(note.date_created, dt.datetime)

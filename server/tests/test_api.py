@@ -6,7 +6,9 @@ import httplib as http
 from marshmallow.utils import rfcformat
 
 from server.app.books.models import Author, Book
-from .factories import AuthorFactory, BookFactory
+from server.app.notes.models import Note
+from server.app.notes.views import NoteMarshal
+from .factories import AuthorFactory, BookFactory, NoteFactory
 from .utils import fake
 
 
@@ -93,20 +95,6 @@ class TestAuthorListResource:
         assert latest.first == first
         assert latest.last == last
 
-    # def test_first_name_required(self, wt, url):
-    #     res = wt.post_json(url, {'last': fake.last_name()}, expect_errors=True)
-    #     assert res.status_code == 400
-    #     # Default webargs error message
-    #     msg = res.json['message']
-    #     assert msg == 'Required parameter {0!r} not found.'.format('first')
-
-    # def test_last_name_required(self, wt, url):
-    #     res = wt.post_json(url, {'first': fake.last_name()}, expect_errors=True)
-    #     assert res.status_code == 400
-    #     # Default webargs error message
-    #     msg = res.json['message']
-    #     assert msg == 'Required parameter {0!r} not found.'.format('last')
-
 @pytest.mark.usefixtures('db')
 class TestBookResource:
 
@@ -174,3 +162,37 @@ class TestBookResource:
         new_length = Book.query.count()
         assert new_length == old_length - 1
 
+@pytest.mark.usefixtures('db')
+class TestNoteDetailResource:
+
+    def test_get(self, wt):
+        note = NoteFactory()
+        url = url_for('notes.NoteDetail:get', id=note.id)
+        res = wt.get(url)
+        result = res.json['result']
+        assert result == NoteMarshal(note).data
+
+    def test_delete(self, wt):
+        note = NoteFactory()
+        old_count = Note.query.count()
+        url = url_for('notes.NoteDetail:delete', id=note.id)
+        res = wt.delete(url)
+        new_count = Note.query.count()
+        assert new_count == old_count - 1
+
+    def test_put_update_text(self, wt):
+        note = NoteFactory()
+        url = url_for('notes.NoteDetail:put', id=note.id)
+        new_text = fake.paragraph()
+        res = wt.put_json(url, {'text': new_text})
+        assert res.json['result']['text'] == new_text
+
+@pytest.mark.usefixtures('db')
+class TestNoteListResource:
+
+    def test_get(self, wt):
+        note1, note2 = NoteFactory(), NoteFactory()
+        url = url_for('notes.NoteList:get')
+        res = wt.get(url)
+        result = res.json['result']
+        assert len(result) == Note.query.count()

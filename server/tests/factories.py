@@ -9,6 +9,7 @@ from factory.alchemy import SQLAlchemyModelFactory
 
 from server.app.user.models import User
 from server.app.books.models import Author, Book
+from server.app.notes.models import Note
 from server.app.meta.database import db
 
 from .utils import fake
@@ -27,6 +28,11 @@ class BaseFactory(SQLAlchemyModelFactory):
         return obj
 
 
+def FakerAttribute(provider, *args, **kwargs):
+    """An attribute that lazily generates a value using the Faker library."""
+    return LazyAttribute(lambda n: getattr(fake, provider)(*args, **kwargs))
+
+
 class UserFactory(BaseFactory):
     FACTORY_FOR = User
 
@@ -39,8 +45,8 @@ class UserFactory(BaseFactory):
 class AuthorFactory(BaseFactory):
     FACTORY_FOR = Author
 
-    first = LazyAttribute(lambda n: fake.first_name())
-    last = LazyAttribute(lambda n: fake.last_name())
+    first = FakerAttribute('first_name')
+    last = FakerAttribute('last_name')
 
 
 class BookFactory(BaseFactory):
@@ -49,3 +55,8 @@ class BookFactory(BaseFactory):
     title = LazyAttribute(lambda n: fake.sentence(nb_words=4))
     isbn = LazyAttribute(lambda n: fake.md5())
     author = SubFactory(AuthorFactory)
+
+class NoteFactory(BaseFactory):
+    FACTORY_FOR = Note
+
+    text = FakerAttribute('paragraph')

@@ -77,7 +77,7 @@ class AuthorList(ModelListResource):
 
     ARGS = AUTHOR_ARGS
 
-    def get_links(self):
+    def _get_links(self):
         return {
             'create': url_for('books.AuthorList:get', _external=True),
             'books': url_for('books.BookList:get', _external=True)
@@ -91,7 +91,7 @@ class AuthorList(ModelListResource):
         resp = {
             'result': self.SERIALIZER(authors, many=True).data,
         }
-        resp.update({'_links': self.get_links()})
+        resp.update({'_links': self._get_links()})
         return resp, http.OK
 
 
@@ -119,14 +119,14 @@ class BookList(ModelListResource):
         'author_last': Arg(str),
     }
 
-    def get_links(self):
+    def _get_links(self):
         return {
             'create': url_for('books.BookList:post', _external=True),
             'authors': url_for('books.AuthorList:get', _external=True),
         }
 
     def post(self):
-        args = self.parse_request()
+        args = self._parse_request()
         if args['author_id']:
             author = api_get_or_404(Author, args['author_id'])
         elif args['author_first'] or args['author_last']:
@@ -139,7 +139,7 @@ class BookList(ModelListResource):
         new_book = self.MODEL(title=args['title'], author=author)
         new_book.save()
         return {
-            'result': self.serialize(new_book),
+            'result': self._serialize(new_book),
             'message': 'Successfully created new book',
         }, http.CREATED
 

@@ -51,26 +51,26 @@ class APIView(FlaskView):
     NAME = None
     BLUEPRINT = None
 
-    def parse_request(self):
+    def _parse_request(self):
         if self.ARGS:
             args = reqparser.parse(self.ARGS, request, targets=('data', 'json'))
         else:
             args = {}
         return args
 
-    def serialize(self, obj, **kwargs):
+    def _serialize(self, obj, **kwargs):
         return self.SERIALIZER(obj, **kwargs).data
 
-    def get_name(self):
+    def _get_name(self):
         return getattr(self, 'NAME', 'object')
 
-    def get_links(self):
+    def _get_links(self):
         return {}
 
-    def post_links(self):
+    def _post_links(self):
         return {}
 
-    def put_links(self):
+    def _put_links(self):
         return {}
 
 
@@ -85,22 +85,22 @@ class ModelResource(APIView):
         obj = api_get_or_404(self.MODEL, id,
             error_msg="{name} not found".format(name=name))
         res = {
-            'result': self.SERIALIZER(obj, strict=True).data,
+            'result': self._serialize(obj, strict=True),
         }
-        res.update(self.get_links())
+        res.update(self._get_links())
         return res, http.OK
 
     def put(self, id):
         obj = api_get_or_404(self.MODEL, id)
-        attrs = self.parse_request()
+        attrs = self._parse_request()
         obj.update(**attrs)
         obj.save()
         res = {
             'result': self.SERIALIZER(obj, strict=True).data,
-            'message': 'Updated {0}'.format(self.get_name())
+            'message': 'Updated {0}'.format(self._get_name())
         }
         res.update({
-            '_links': self.put_links(),
+            '_links': self._put_links(),
         })
         return res, http.OK
 
@@ -124,21 +124,21 @@ class ModelListResource(APIView):
             'result': self.SERIALIZER(objects, many=True).data,
         }
         res.update({
-            '_links': self.get_links(),
+            '_links': self._get_links(),
         })
         return res, http.OK
 
     def post(self):
         """Create a new instance of the resource."""
-        args = self.parse_request()
+        args = self._parse_request()
         new_obj = self.MODEL.create(**args)
-        name = self.get_name()
+        name = self._get_name()
         res = {
             'result': self.SERIALIZER(new_obj, strict=True).data,
             'message': 'Successfully created new {0}'.format(name)
         }
         res.update({
-            '_links': self.post_links(),
+            '_links': self._post_links(),
         })
         return res, http.CREATED
 
