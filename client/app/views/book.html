@@ -1,5 +1,11 @@
-<h1 class="book-title">{{book.title}}</h1>
+<a ng-href="#/books/"><i class="fa fa-angle-double-left"></i> Back to books</a>
+<h1 class="book-title">{{book.title}}
 
-<p class="text-muted">
+<span>
+  <small>
     by <a ng-href="#/authors/{{author.id}}">{{author | authorName }}</a>
-</p>
+
+  </small>
+</span>
+</h1>
+

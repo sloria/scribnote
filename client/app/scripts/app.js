@@ -2,7 +2,8 @@
 var app = angular.module('appApp', [
   'ngResource',
   'ngRoute',
-  'ui.bootstrap'
+  'ui.bootstrap',
+  'drahak.hotkeys'
 ]);
 
 var routeConfig = function($routeProvider) {

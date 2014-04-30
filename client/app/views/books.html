@@ -1,61 +1,74 @@
+<h1 class="page-title">Books</h1>
 
-<h1>Books</h1>
+<div class="row">
+  <div class="col-md-8">
+    <button ng-click="addForm.activate()" class="btn btn-default">New Book</button>
+  </div><!-- ./col-md -->
+  <div class="col-md-4">
+    <input ng-model="searchText"
+    type="text" class="form-control"
+    placeholder="Search..."
+    width="50%"
+    autofocus
+    >
+  </div><!-- ./col-md -->
+</div><!-- ./row -->
+<div class="row">
+  <div class="col-md-12">
 
-<button ng-click="addForm.activate()" class="btn btn-default">Add</button>
-<table class="table book-table">
+    <table class="table book-table">
+      <thead>
+        <tr>
+          <th>Title</th>
+          <th>Author</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr ng-repeat="book in books | filter:searchText | orderBy:'title'">
+          <td><a ng-href="#/books/{{book.id}}">{{book.title}}</a></td>
+          <td><a ng-href="#/authors/{{book.author.id}}">
+            {{book.author | authorName}}
+            </a>
+          </td>
+          <td><a style="cursor: pointer"
+            ng-really-message="Are you sure you want to delete {{book.title}}?"
+            ng-really="delete(book, $index)">&times;</a></td>
+        </tr>
+      </tbody>
+    </table>
+    <!-- New book form -->
+    <div
+      ng-show="addForm.active"
+      class="add-book">
+      <form
+        ng-submit="addForm.submit()"
+        class="form-inline" role="form">
+        <div class="form-group">
+          <input ng-model="addForm.title"
+          sync-focus="addForm.active"
+          placeholder="Book title..."
+          class="form-control" type="text"
+          required autofocus>
+        </div>
+        <div class="form-group">
+          <input ng-model="addForm.first"
+          class="form-control"
+          placeholder="Author first name..."
+          type="text">
+        </div>
+        <div class="form-group">
+          <input ng-model="addForm.last"
+          class="form-control"
+          placeholder="Author last name..."
+          type="text">
+        </div>
+        <button ng-click="addForm.deactivate()"
+        class="btn btn-default">Cancel</button>
+        <input ng-submit="addForm.submit()"
+        type="submit" class="btn btn-success">
+      </form>
+    </div><!-- ./add-book -->
+  </div><!-- ./col -->
+</div><!-- ./row -->
 
-  <thead>
-    <tr>
-      <th>Title</th>
-      <th>Author</th>
-      <th></th>
-    </tr>
-  </thead>
-
-  <tbody>
-    <tr ng-repeat="book in books | orderBy:'title'">
-      <td><a ng-href="#/books/{{book.id}}">{{book.title}}</a></td>
-      <td>{{book.author | authorName}}</td>
-      <td><a style="cursor: pointer"
-              ng-really-message="Are you sure you want to delete {{book.title}}?"
-              ng-really="delete(book, $index)">&times;</a></td>
-    </tr>
-  </tbody>
-
-</table>
-  <div ng-show="addForm.active">
-    <form
-          ng-submit="addForm.submit()"
-          class="form-inline" role="form">
-      <div class="form-group">
-        <input ng-model="addForm.title"
-               sync-focus="addForm.active"
-               placeholder="Book title..."
-               class="form-control" type="text"
-               required autofocus>
-      </div>
-      <div class="form-group">
-
-        <input ng-model="addForm.first"
-                  class="form-control"
-                  placeholder="Author first name..."
-                  type="text">
-      </div>
-
-      <div class="form-group">
-
-        <input ng-model="addForm.last"
-                  class="form-control"
-                  placeholder="Author last name..."
-                  type="text">
-      </div>
-      <button ng-click="addForm.deactivate()"
-                class="btn btn-default">Cancel</button>
-      <input ng-submit="addForm.submit()"
-                type="submit" class="btn btn-success">
-
-    </form>
-  </div>
-
-  <p class="text-danger">{{error}}</p>
-</div>
