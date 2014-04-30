@@ -67,6 +67,9 @@ class TestAuthorListResource:
         assert res.status_code == http.OK
         data = res.json['result']
         assert len(data) == Author.query.count()
+        links = res.json['_links']
+        assert 'create' in links
+        assert 'books' in links
 
     def test_get_excludes_authors_with_no_books(self, wt, url):
         author1, author2 = AuthorFactory(), AuthorFactory()

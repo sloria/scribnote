@@ -6,7 +6,7 @@ from flask import url_for
 import pytest
 
 from server.app.user.models import User, Role
-from server.app.books.models import Book, Author
+from server.app.books.models import Book, Author, Note
 from .factories import UserFactory, BookFactory, AuthorFactory
 from .utils import fake
 
@@ -99,3 +99,13 @@ class TestAuthor:
         assert author.first
         assert author.last
         assert author.id
+
+
+@pytest.mark.usefixtures('db')
+class TestNote:
+
+    def test_attributes(self):
+        text = fake.paragraph()
+        note = Note.create(text)
+        assert note.text == text
+        assert isinstance()

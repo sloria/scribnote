@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 '''The app module, containing the app factory function.'''
 import logging
-from flask import Flask, make_response
+from flask import make_response
 from flask.ext.api import FlaskAPI
 
 from .settings import ProdConfig
@@ -30,12 +30,14 @@ def create_app(config_object=ProdConfig):
     register_blueprints(api)
 
     # Make api cross-domain accessible
-    # @api.after_request
-    # def after_request(data):
-    #     resp = make_response(data)
-    #     resp.headers['Access-Control-Allow-Headers'] = 'Origin, X-RequestedWith,Content-Type,Accept'
-    #     resp.headers['Access-Control-Allow-Origin'] = '*'
-    #     return resp
+    @api.after_request
+    def after_request(data):
+        resp = make_response(data)
+        resp.headers['Access-Control-Allow-Origin'] = '*'
+        resp.headers['Access-Control-Allow-Headers'] = 'Origin, X-RequestedWith,Content-Type,Accept'
+        resp.headers['Access-Control-Allow-Methods'] = 'GET,POST,PUT,DELETE'
+        # resp.headers['Access-Control-Max-Age'] = '604800'
+        return resp
     return api
 
 
@@ -56,7 +58,7 @@ def register_blueprints(app):
     for bp in api_blueprints:
         app.register_blueprint(
             bp,
-            # url_prefix='/api'
+            url_prefix='/api'
         )
     # app.register_blueprint(public.views.blueprint)
     # app.register_blueprint(user.views.blueprint)

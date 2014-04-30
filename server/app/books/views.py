@@ -91,7 +91,7 @@ class AuthorList(ModelListResource):
         resp = {
             'result': self.SERIALIZER(authors, many=True).data,
         }
-        resp.update(self.get_links())
+        resp.update({'_links': self.get_links()})
         return resp, http.OK
 
 
