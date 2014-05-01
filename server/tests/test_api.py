@@ -170,7 +170,7 @@ class TestNoteDetailResource:
         url = url_for('notes.NoteDetail:get', id=note.id)
         res = wt.get(url)
         result = res.json['result']
-        assert result == NoteMarshal(note).data
+        assert result['text'] == note.text
 
     def test_delete(self, wt):
         note = NoteFactory()
@@ -214,10 +214,25 @@ class TestNoteListResource:
 @pytest.mark.usefixtures('db')
 class TestBookNoteNestedResource:
 
-    def test_get_book_notes(self, wt):
+    @pytest.fixture
+    def book(self, db):
+        return BookFactory()
+
+    def test_url(self):
+        assert url_for('books.book_note_list', book_id=42) == '/api/books/42/notes/'
+
+    def test_get_book_notes(self, wt, book):
         book = BookFactory()
         note1, note2 = NoteFactory(book=book), NoteFactory(book=book)
-        url = '/api/books/{0}/notes/'.format(book.id)
+        url = url_for('books.book_note_list', book_id=book.id)
         res = wt.get(url)
         result = res.json['result']
         assert len(result) == len(book.notes)
+
+    def test_get_book_note(self, wt, book):
+        note = NoteFactory(book=book)
+        url = url_for('books.book_note', book_id=book.id, note_id=note.id)
+        res = wt.get(url)
+        result = res.json['result']
+        assert result['text'] == note.text
+        assert 'book' in result

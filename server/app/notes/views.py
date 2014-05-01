@@ -3,7 +3,6 @@ import logging
 import httplib as http
 
 from flask import Blueprint
-from flask.ext.marshmallow import Serializer, fields
 from webargs import Arg
 
 from ..meta.api import (
@@ -12,25 +11,13 @@ from ..meta.api import (
     register_class_views,
 )
 from ..books.models import Book
+from ..serializers import NoteMarshal
 from .models import Note
 
 
 logger = logging.getLogger(__name__)
 
 blueprint = Blueprint('notes', __name__)
-
-
-# Serializers
-
-class NoteMarshal(Serializer):
-    class Meta:
-        additional = ('text', )
-    created = fields.DateTime(attribute='date_created')
-    _links = fields.Hyperlinks({
-        'collection': fields.URL('notes.NoteList:get'),
-    })
-
-serialize_note = NoteMarshal.factory(strict=True)
 
 NOTE_ARGS = {
     'text': Arg(unicode, allow_missing=True),
@@ -61,14 +48,6 @@ class NoteList(NoteResource, ModelListResource):
             'result': self._serialize(new_note)
         }
         return result, http.CREATED
-
-
-@blueprint.route('/books/<int:book_id>/notes/')
-def book_note_list(book_id):
-    book = Book.api_get_or_404(book_id)
-    return {
-        'result': serialize_note(book.notes, many=True).data
-    }
 
 
 register_class_views(

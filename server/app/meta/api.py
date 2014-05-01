@@ -115,7 +115,6 @@ class ModelResource(APIView):
 class ModelListResource(APIView):
     """Implements generic HTTP-based collection CRUD for a given model."""
 
-
     def get(self):
         """Return a list of the requested objects."""
         objects = self.MODEL.query.all()

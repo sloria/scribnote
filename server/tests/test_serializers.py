@@ -4,12 +4,9 @@ import pytest
 from marshmallow.utils import rfcformat
 
 from flask import url_for
-from marshmallow import pprint
-
-from server.app.books.views import AuthorMarshal, BookMarshal
-from server.app.notes.views import NoteMarshal
-from server.app.notes.models import Note
 from .factories import AuthorFactory, BookFactory, NoteFactory
+
+from server.app.serializers import AuthorMarshal, BookMarshal, NoteMarshal
 
 @pytest.mark.usefixtures('db')
 class TestAuthorMarshal:

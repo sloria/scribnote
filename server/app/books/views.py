@@ -3,7 +3,6 @@ import logging
 import httplib as http
 
 from flask import Blueprint, url_for, request
-from flask.ext.marshmallow import Serializer, fields
 from webargs import Arg
 
 from ..meta.api import (
@@ -12,41 +11,12 @@ from ..meta.api import (
     ModelListResource,
     register_class_views,
 )
+from ..notes.models import Note
+from ..serializers import AuthorMarshal, BookMarshal, serialize_note
 from .models import Author, Book
 
 logger = logging.getLogger(__name__)
 blueprint = Blueprint('books', __name__)
-
-# Serializers
-
-class BaseBookMarshal(Serializer):
-    created = fields.DateTime(attribute='date_created')
-
-    _links = fields.Hyperlinks({
-        'self': fields.URL('books.BookDetail:get', id='<id>', _external=True),
-        'collection': fields.URL('books.BookList:get', _external=True),
-    })
-
-    class Meta:
-        additional = ('id', 'title', 'isbn')
-
-
-class AuthorMarshal(Serializer):
-    created = fields.DateTime(attribute='date_created')
-    books = fields.Nested(BaseBookMarshal, many=True)
-
-    # Implement HATEOAS
-    _links = fields.Hyperlinks({
-        'self': fields.AbsoluteURL('books.AuthorDetail:get', id='<id>'),
-        'update': fields.AbsoluteURL('books.AuthorDetail:put', id='<id>'),
-        'collection': fields.AbsoluteURL('books.AuthorList:get'),
-    })
-
-    class Meta:
-        additional = ('id', 'first', 'last')
-
-class BookMarshal(BaseBookMarshal):
-    author = fields.Nested(AuthorMarshal, allow_null=True)
 
 # Views
 
@@ -152,3 +122,19 @@ register_class_views(
     ],
     blueprint
 )
+
+route = blueprint.route
+
+@route('/books/<book_id>/notes/')
+def book_note_list(book_id):
+    book = Book.api_get_or_404(book_id)
+    return {
+        'result': serialize_note(book.notes, many=True).data
+    }
+
+@route('/books/<book_id>/notes/<note_id>')
+def book_note(book_id, note_id):
+    note = Note.api_get_or_404(note_id)
+    return {
+        'result': serialize_note(note).data
+    }
