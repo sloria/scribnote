@@ -10,9 +10,11 @@ from ..meta.api import (
     ModelResource,
     ModelListResource,
     register_class_views,
+    reqparser,
+    use_args
 )
 from ..notes.models import Note
-from ..serializers import AuthorMarshal, BookMarshal, serialize_note
+from ..serializers import serialize_author, serialize_book, serialize_note
 from .models import Author, Book
 
 logger = logging.getLogger(__name__)
@@ -30,7 +32,7 @@ class AuthorDetail(ModelResource):
 
     BLUEPRINT = 'books'
     MODEL = Author
-    SERIALIZER = AuthorMarshal
+    SERIALIZER = serialize_author
     NAME = 'author'
 
     ARGS = AUTHOR_ARGS
@@ -41,7 +43,7 @@ class AuthorList(ModelListResource):
 
     BLUEPRINT = 'books'
     MODEL = Author
-    SERIALIZER = AuthorMarshal
+    SERIALIZER = serialize_author
     NAME = 'author'
 
     ARGS = AUTHOR_ARGS
@@ -69,7 +71,7 @@ class BookDetail(ModelResource):
     route_base = '/books/'
     BLUEPRINT = 'books'
     MODEL = Book
-    SERIALIZER = BookMarshal
+    SERIALIZER = serialize_book
     NAME = 'book'
 
 
@@ -78,7 +80,7 @@ class BookList(ModelListResource):
     route_base = '/books/'
     BLUEPRINT = 'books'
     MODEL = Book
-    SERIALIZER = BookMarshal
+    SERIALIZER = serialize_book
     NAME = 'book'
 
     ARGS = {
@@ -123,18 +125,36 @@ register_class_views(
     blueprint
 )
 
+##### Nested routes ######
+
 route = blueprint.route
 
 @route('/books/<book_id>/notes/')
-def book_note_list(book_id):
+def notes(book_id):
     book = Book.api_get_or_404(book_id)
     return {
         'result': serialize_note(book.notes, many=True).data
     }
 
 @route('/books/<book_id>/notes/<note_id>')
-def book_note(book_id, note_id):
+def note(book_id, note_id):
     note = Note.api_get_or_404(note_id)
+    return {
+        'result': serialize_note(note).data
+    }
+
+
+NOTE_ARGS = {
+    'text': Arg(unicode, allow_missing=True),
+    'book_id': Arg(int, allow_missing=True),
+}
+
+@route('/books/<book_id>/notes/<note_id>', methods=['PUT'])
+@use_args(NOTE_ARGS)
+def note_edit(reqargs, book_id, note_id):
+    note = Note.api_get_or_404(note_id)
+    note.update(**reqargs)
+    note.save()
     return {
         'result': serialize_note(note).data
     }

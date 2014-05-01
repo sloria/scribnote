@@ -4,9 +4,9 @@ marshalling, etc.
 """
 import httplib as http
 
-from flask import request, url_for
+from flask import request
 from flask.ext.classy import FlaskView
-from flask.ext.api.exceptions import NotFound, APIException
+from flask.ext.api.exceptions import APIException
 from webargs import core
 from webargs.flaskparser import FlaskParser
 
@@ -28,6 +28,7 @@ class FlaskAPIParser(FlaskParser):
         'files': 'parse_files',
         'data': 'parse_data',
     }
+    DEFAULT_TARGETS = ('data', 'json', 'querystring')
 
     def parse_data(self, req, name, arg):
         try:
