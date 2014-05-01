@@ -1,8 +1,11 @@
 <h1 class="page-title">Books</h1>
 
+<!-- Controls -->
 <div class="row">
   <div class="col-md-8">
-    <button ng-click="addForm.activate()" class="btn btn-default">New Book</button>
+    <button ng-click="addForm.activate()"
+            tooltip="New Book (Ctrl + n)"
+            class="btn btn-default">New Book</button>
   </div><!-- ./col-md -->
   <div class="col-md-4">
     <input ng-model="searchText"
@@ -13,6 +16,7 @@
     >
   </div><!-- ./col-md -->
 </div><!-- ./row -->
+
 <div class="row">
   <div class="col-md-12">
 
