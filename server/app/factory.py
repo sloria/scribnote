@@ -11,7 +11,6 @@ from .extensions import (
     db,
     login_manager,
     migrate,
-    api_manager,
 )
 from . import main, books, notes
 
@@ -42,7 +41,6 @@ def create_app(config_object=ProdConfig):
 
 
 def register_extensions(app):
-    api_manager.init_app(app, flask_sqlalchemy_db=db)
     bcrypt.init_app(app)
     cache.init_app(app)
     db.init_app(app)

@@ -17,7 +17,3 @@ migrate = Migrate()
 
 from flask.ext.cache import Cache
 cache = Cache()
-
-
-from flask.ext.restless import APIManager
-api_manager = APIManager()
