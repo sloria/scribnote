@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import logging
 import httplib as http
 
 from flask import Blueprint
@@ -11,11 +10,8 @@ from ..meta.api import (
     register_class_views,
 )
 from ..books.models import Book
-from ..serializers import NoteMarshal
+from ..serializers import serialize_note
 from .models import Note
-
-
-logger = logging.getLogger(__name__)
 
 blueprint = Blueprint('notes', __name__)
 
@@ -28,10 +24,10 @@ class NoteResource(object):
     route_base = '/notes/'
     BLUEPRINT = 'notes'
     MODEL = Note
-    SERIALIZER = NoteMarshal
+    SERIALIZER = serialize_note
 
 class NoteDetail(NoteResource, ModelResource):
-    """Generic view set for the note detail endpoint.
+    """Generic set of views for the note detail endpoint.
     """
     ARGS = NOTE_ARGS
 
@@ -48,7 +44,6 @@ class NoteList(NoteResource, ModelListResource):
             'result': self._serialize(new_note)
         }
         return result, http.CREATED
-
 
 register_class_views(
     [

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from flask import Blueprint, url_for, make_response
+from flask import Blueprint, url_for
 
 
 blueprint = Blueprint('main', __name__)

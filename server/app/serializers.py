@@ -35,8 +35,6 @@ class BookMarshal(BaseBookMarshal):
     author = fields.Nested(AuthorMarshal, allow_null=True)
 
 
-
-
 class NoteMarshal(Serializer):
     class Meta:
         additional = ('text', )
@@ -46,7 +44,7 @@ class NoteMarshal(Serializer):
         'collection': fields.URL('notes.NoteList:get'),
     })
 
-# Create factory methods which set strict mode as default
+# Create factory functions which set strict mode as default
 serialize_author = AuthorMarshal.factory(strict=True)
 serialize_book = BookMarshal.factory(strict=True)
 serialize_note = NoteMarshal.factory(strict=True)
