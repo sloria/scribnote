@@ -18,6 +18,9 @@ class Note(SurrogatePK, Model):
     text = Col(db.Unicode(5000))
     date_created = DefaultDateTimeCol(nullable=False)
 
+    book_id = ReferenceCol('books')
+    book = relationship('Book', backref='notes')
+
     def __init__(self, text, *args, **kwargs):
         self.text = text
         super(Note, self).__init__(**kwargs)

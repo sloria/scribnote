@@ -186,6 +186,7 @@ class TestNoteDetailResource:
         new_text = fake.paragraph()
         res = wt.put_json(url, {'text': new_text})
         assert res.json['result']['text'] == new_text
+        assert note.text == new_text
 
 @pytest.mark.usefixtures('db')
 class TestNoteListResource:
@@ -196,3 +197,27 @@ class TestNoteListResource:
         res = wt.get(url)
         result = res.json['result']
         assert len(result) == Note.query.count()
+
+    def test_post_creates_note(self, wt):
+        book = BookFactory()
+        url = url_for('notes.NoteList:post')
+        old_count = Note.query.count()
+        text = '\n'.join(fake.paragraphs(5))
+        res = wt.post_json(url, {'text': text, 'book_id': book.id})
+        assert res.status_code == http.CREATED
+        new_count = Note.query.count()
+        assert new_count == old_count + 1
+
+        latest = Note.get_latest()
+        assert latest.text == text
+
+@pytest.mark.usefixtures('db')
+class TestBookNoteNestedResource:
+
+    def test_get_book_notes(self, wt):
+        book = BookFactory()
+        note1, note2 = NoteFactory(book=book), NoteFactory(book=book)
+        url = '/api/books/{0}/notes/'.format(book.id)
+        res = wt.get(url)
+        result = res.json['result']
+        assert len(result) == len(book.notes)

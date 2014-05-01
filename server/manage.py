@@ -17,6 +17,7 @@ else:
 
 def _make_context():
     from app.books.models import Author, Book
+    from app.notes.models import Note
     from app.user.models import User
     from app.meta.database import db
     from flask import url_for, current_app

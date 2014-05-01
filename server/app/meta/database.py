@@ -5,7 +5,7 @@ utilities.
 import datetime as dt
 from sqlalchemy.orm import relationship
 from sqlalchemy.exc import OperationalError
-
+from flask.ext.api.exceptions import NotFound
 from ..extensions import db
 
 # Alias common SQLAlchemy names
@@ -95,6 +95,13 @@ class SurrogatePK(object):
         ):
             return cls.query.get(int(id))
         return None
+
+    @classmethod
+    def api_get_or_404(cls, id, error_msg=None):
+        obj = cls.get_by_id(id)
+        if obj is None:
+            raise NotFound(detail=error_msg)
+        return obj
 
 
 def ReferenceCol(tablename, nullable=False, pk_name='id', **kwargs):

@@ -82,7 +82,7 @@ class ModelResource(APIView):
     def get(self, id):
         """Return a single instance."""
         name = getattr(self, 'NAME', 'Resource')
-        obj = api_get_or_404(self.MODEL, id,
+        obj = self.MODEL.api_get_or_404(id,
             error_msg="{name} not found".format(name=name))
         res = {
             'result': self._serialize(obj, strict=True),
@@ -91,7 +91,7 @@ class ModelResource(APIView):
         return res, http.OK
 
     def put(self, id):
-        obj = api_get_or_404(self.MODEL, id)
+        obj = self.MODEL.api_get_or_404(id)
         attrs = self._parse_request()
         obj.update(**attrs)
         obj.save()
@@ -106,7 +106,7 @@ class ModelResource(APIView):
 
     def delete(self, id):
         name = getattr(self, 'NAME', 'Resource')
-        obj = api_get_or_404(self.MODEL, id,
+        obj = self.MODEL.api_get_or_404(id,
             error_msg="{name} not found".format(name=name))
         obj.delete(commit=True)
         return {}
@@ -141,16 +141,6 @@ class ModelListResource(APIView):
             '_links': self._post_links(),
         })
         return res, http.CREATED
-
-
-def api_get_or_404(model, id, error_msg=None):
-    """Get a model by its primary key; abort with 404 using Flask-RESTful's
-    abort helper.
-    """
-    obj = model.query.get(id)
-    if not obj:
-        raise NotFound(detail=error_msg)
-    return obj
 
 
 def register_class_views(view_classes, app, route_base=None, route_prefix=None):

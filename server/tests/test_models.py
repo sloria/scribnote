@@ -107,7 +107,10 @@ class TestAuthor:
 class TestNote:
 
     def test_attributes(self):
+        book = BookFactory()
         text = fake.paragraph()
-        note = Note.create(text=text)
+        note = Note.create(text=text, book=book)
         assert note.text == text
         assert isinstance(note.date_created, dt.datetime)
+        assert note.book == book
+

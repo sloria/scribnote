@@ -59,4 +59,6 @@ class BookFactory(BaseFactory):
 class NoteFactory(BaseFactory):
     FACTORY_FOR = Note
 
+    book = SubFactory(BookFactory)
+
     text = FakerAttribute('paragraph')

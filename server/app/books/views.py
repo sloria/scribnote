@@ -7,7 +7,6 @@ from flask.ext.marshmallow import Serializer, fields
 from webargs import Arg
 
 from ..meta.api import (
-    api_get_or_404,
     # reqparser,
     ModelResource,
     ModelListResource,
@@ -128,7 +127,7 @@ class BookList(ModelListResource):
     def post(self):
         args = self._parse_request()
         if args['author_id']:
-            author = api_get_or_404(Author, args['author_id'])
+            author = Author.api_get_or_404(args['author_id'])
         elif args['author_first'] or args['author_last']:
             author, created = Author.get_or_create(
                 first=args['author_first'],
