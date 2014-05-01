@@ -15,8 +15,11 @@ from .models import Note
 
 blueprint = Blueprint('notes', __name__)
 
+def validate_text(text):
+    return text and len(text) > 0
+
 NOTE_ARGS = {
-    'text': Arg(unicode, allow_missing=True),
+    'text': Arg(unicode, validate=validate_text, allow_missing=True),
     'book_id': Arg(int, allow_missing=True)
 }
 

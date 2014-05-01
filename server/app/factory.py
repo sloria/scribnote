@@ -35,7 +35,7 @@ def create_app(config_object=ProdConfig):
         resp.headers['Access-Control-Allow-Origin'] = '*'
         resp.headers['Access-Control-Allow-Headers'] = 'Origin, X-RequestedWith,Content-Type,Accept'
         resp.headers['Access-Control-Allow-Methods'] = 'GET,POST,PUT,DELETE'
-        # resp.headers['Access-Control-Max-Age'] = '604800'
+        resp.headers['Access-Control-Max-Age'] = '604800'
         return resp
     return api
 

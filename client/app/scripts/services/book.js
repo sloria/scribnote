@@ -2,7 +2,7 @@
 
 var app = angular.module('appApp');
 
-app.factory('Book', function ($resource, $http, serverConfig, AppAlert) {
+app.factory('Book', function ($http, serverConfig) {
   var baseURL = serverConfig.DOMAIN + '/api/books/';
 
   function Book(data) {
@@ -13,7 +13,7 @@ app.factory('Book', function ($resource, $http, serverConfig, AppAlert) {
   Book.get = function(id) {
     return $http.get(baseURL + id).then(function(response) {
         return new Book(response.data.result);
-    });
+      });
   };
 
   // instance method to create new book
@@ -21,7 +21,7 @@ app.factory('Book', function ($resource, $http, serverConfig, AppAlert) {
     return $http.post(baseURL, params).then(function(resp) {
 
         return new Book(resp.data.result);
-    });
+      });
   };
 
   // GET all books
@@ -30,8 +30,8 @@ app.factory('Book', function ($resource, $http, serverConfig, AppAlert) {
         var bookDataArray = resp.data.result;
         return bookDataArray.map(function(bookData) {
             return new Book(bookData);
-        })
-    });
+          });
+      });
   };
 
   // Delete a book

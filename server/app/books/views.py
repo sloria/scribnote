@@ -145,7 +145,7 @@ def note(book_id, note_id):
 
 
 NOTE_ARGS = {
-    'text': Arg(unicode, allow_missing=True),
+    'text': Arg(unicode, allow_missing=True, validate=lambda t: t and len(t) > 0),
     'book_id': Arg(int, allow_missing=True),
 }
 
@@ -158,3 +158,9 @@ def note_edit(reqargs, book_id, note_id):
     return {
         'result': serialize_note(note).data
     }
+
+@route('/books/<book_id>/notes/<note_id>', methods=['DELETE'])
+def note_delete(book_id, note_id):
+    note = Note.api_get_or_404(note_id)
+    note.delete(commit=True)
+    return {}

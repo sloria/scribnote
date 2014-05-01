@@ -9,8 +9,9 @@ class BaseBookMarshal(Serializer):
     created = fields.DateTime(attribute='date_created')
 
     _links = fields.Hyperlinks({
-        'self': fields.URL('books.BookDetail:get', id='<id>', _external=True),
-        'collection': fields.URL('books.BookList:get', _external=True),
+        'self': fields.AbsoluteURL('books.BookDetail:get', id='<id>'),
+        'collection': fields.AbsoluteURL('books.BookList:get'),
+        'notes': fields.AbsoluteURL('books.notes', book_id='<id>')
     })
 
     class Meta:
@@ -37,7 +38,7 @@ class BookMarshal(BaseBookMarshal):
 
 class NoteMarshal(Serializer):
     class Meta:
-        additional = ('text', )
+        additional = ('id', 'text', )
     created = fields.DateTime(attribute='date_created')
     book = fields.Nested(BookMarshal)
     _links = fields.Hyperlinks({

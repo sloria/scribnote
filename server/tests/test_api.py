@@ -7,7 +7,6 @@ from marshmallow.utils import rfcformat
 
 from server.app.books.models import Author, Book
 from server.app.notes.models import Note
-from server.app.notes.views import NoteMarshal
 from .factories import AuthorFactory, BookFactory, NoteFactory
 from .utils import fake
 
@@ -245,3 +244,10 @@ class TestBookNoteNestedResource:
         res = wt.put_json(url, {'text': new_text})
         assert res.status_code == 200
         assert note.text == new_text
+
+    def test_delete_book_note(self, wt, book, note):
+        old_length = Note.query.count()
+        url = url_for('books.note_delete', book_id=book.id, note_id=note.id)
+        res = wt.delete(url)
+        new_length = Note.query.count()
+        assert new_length == old_length - 1

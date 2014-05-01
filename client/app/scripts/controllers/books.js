@@ -49,27 +49,71 @@ app.controller('BooksCtrl', function ($scope, Book, AppAlert, $hotkey) {
     });
   };
 
-  $hotkey.bind('Ctrl + n', function(event) {
+  $hotkey.bind('Ctrl + n', function() {
     $scope.addForm.activate();
   });
 
-  $hotkey.bind('Esc', function(event) {
+  $hotkey.bind('Esc', function() {
     $scope.addForm.deactivate();
   });
 
 });
 
 
-app.controller('BookDetailCtrl', function($scope, $routeParams, Book) {
+app.controller('BookDetailCtrl',
+    function($scope, $routeParams, Book, Note, AppAlert, $hotkey) {
   // Initialize variables
+  var bookID = $routeParams.id;
   $scope.book = {};
   $scope.author = {};
-  Book.get($routeParams.id)
+  $scope.notes = [];
+
+  function addNoteSuccess(newNote) {
+    AppAlert.add('success', 'Created new note');
+    $scope.notes.push(newNote);
+  }
+
+  function addNoteError(error) {
+    console.error(error);
+    AppAlert.add('danger', 'Could not create note. Please try again later.');
+  }
+
+  $scope.addNoteForm = {
+    focus: true,
+    text: '',
+    submit: function() {
+      var payload = {
+        book_id: bookID,
+        text: $scope.addNoteForm.text
+      };
+      Note.create(payload).then(addNoteSuccess, addNoteError);
+      $scope.addNoteForm.text = '';
+    }
+  };
+
+  $scope.deleteNote = function(note, index) {
+    Note.delete(note.id).then(function() {
+      $scope.notes.splice(index, 1);
+      AppAlert.add('danger', 'Deleted note.');
+    });
+  };
+
+  Book.get(bookID)
     .then(function(book) {
       $scope.book = book;
       $scope.author = book.author;
     }, function(error) {
-      console.log('Could not retrieve book');
+      console.error(error);
+      AppAlert.add('danger', 'Could not retrieve book');
+    });
+
+  Note.queryByBookID(bookID)
+    .then(function(notes) {
+      $scope.notes = notes;
+    });
+
+  $hotkey.bind('Ctrl + n', function() {
+    $scope.addNoteForm.focus = true;
   });
 
 });
