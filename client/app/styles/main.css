@@ -77,3 +77,36 @@ body {
     border-bottom: 0;
   }
 }
+
+.note-text {
+  background:#f9f9f9;
+  border-left:10px solid #ccc;
+  margin:1.5em 10px;
+  padding:.5em 10px;
+  quotes: "";
+}
+.note-text:before {
+  color:#ccc;
+  content:open-quote;
+  font-size:4em;
+  line-height:.1em;
+  margin-right:.25em;
+  vertical-align:-.4em;
+}
+.note-text p {
+  display:inline;
+}
+.note-text cite {
+  color: #999999;
+  font-size: 14px;
+  display: block;
+  margin-top: 5px;
+}
+
+.note-text cite:before {
+content: "\2014 \2009";
+}
+
+ul.note-list {
+  list-style: none;
+}

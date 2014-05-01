@@ -2,12 +2,17 @@
 
 var app = angular.module('appApp');
 
-app.factory('Note', function ($http, serverConfig) {
+app.factory('Note', function ($http, serverConfig, relativeDate) {
   var baseUrl = serverConfig.DOMAIN + '/api/notes/';
 
   // Constructor
   function Note(data) {
-    angular.extend(this, data);
+    var self = this;
+    angular.extend(self, data);
+    self.createdDate = new Date(self.created);
+    relativeDate.set(self.created, function(relDate) {
+      self.createdRelative = relDate;
+    });
   }
 
   Note.get = function(id) {

@@ -3,7 +3,8 @@ var app = angular.module('appApp', [
   'ngResource',
   'ngRoute',
   'ui.bootstrap',
-  'drahak.hotkeys'
+  'drahak.hotkeys',
+  'relativeDate'
 ]);
 
 var routeConfig = function($routeProvider) {

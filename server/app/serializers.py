@@ -15,6 +15,7 @@ class BaseBookMarshal(Serializer):
     })
 
     class Meta:
+        dateformat = 'iso'
         additional = ('id', 'title', 'isbn')
 
 
@@ -30,6 +31,7 @@ class AuthorMarshal(Serializer):
     })
 
     class Meta:
+        dateformat = 'iso'
         additional = ('id', 'first', 'last')
 
 class BookMarshal(BaseBookMarshal):
@@ -38,6 +40,7 @@ class BookMarshal(BaseBookMarshal):
 
 class NoteMarshal(Serializer):
     class Meta:
+        dateformat = 'iso'
         additional = ('id', 'text', )
     created = fields.DateTime(attribute='date_created')
     book = fields.Nested(BookMarshal)

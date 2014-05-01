@@ -69,7 +69,6 @@ app.controller('BookDetailCtrl',
   $scope.notes = [];
 
   function addNoteSuccess(newNote) {
-    AppAlert.add('success', 'Created new note');
     $scope.notes.push(newNote);
   }
 
