@@ -12,7 +12,7 @@
     "font-awesome": "~4.0.3",
     "angular-bootstrap": "~0.10.0",
     "angular-ui-utils": "bower-keypress",
-    "angular-hotkeys": "chieffancypants/angular-hotkeys#~1.1.0",
+    "angular-hotkeys": "~0.2.1",
     "angular-relative": "*"
   },
   "devDependencies": {

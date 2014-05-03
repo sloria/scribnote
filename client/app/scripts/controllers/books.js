@@ -2,7 +2,7 @@
 
 var app = angular.module('appApp');
 
-app.controller('BooksCtrl', function ($scope, Book, AppAlert, hotkeys) {
+app.controller('BooksCtrl', function ($scope, Book, AppAlert, $hotkey) {
 
   $scope.books = [];
   Book.query().then(function(books) {
@@ -34,6 +34,7 @@ app.controller('BooksCtrl', function ($scope, Book, AppAlert, hotkeys) {
         $scope.addForm.active = false;
         AppAlert.add('success', 'Added book.');
       }, function(error) {
+        console.error(error);
         AppAlert.add('danger', 'An error occurred while creating the book. Please try again later.');
       });
     }
@@ -49,20 +50,12 @@ app.controller('BooksCtrl', function ($scope, Book, AppAlert, hotkeys) {
     });
   };
 
-  // Allow hotkeys to work even if in a text input
-  Mousetrap.stopCallback = function() {
-    return false;
-  };
 
-  hotkeys.add({
-    combo: 'ctrl+n',
-    callback: function() {
-      $scope.addForm.activate();
-    },
-    description: 'Add a new book.'
+  $hotkey.bind('ctrl + n', function() {
+    $scope.addForm.activate();
   });
 
-  hotkeys.add('escape', function() {
+  $hotkey.bind('escape', function() {
     $scope.addForm.deactivate();
   });
 
@@ -70,7 +63,7 @@ app.controller('BooksCtrl', function ($scope, Book, AppAlert, hotkeys) {
 
 
 app.controller('BookDetailCtrl',
-    function($scope, $routeParams, Book, Note, AppAlert, hotkeys) {
+    function($scope, $routeParams, Book, Note, AppAlert, $hotkey) {
   // Initialize variables
   var bookID = $routeParams.id;
   $scope.book = {};
@@ -107,10 +100,11 @@ app.controller('BookDetailCtrl',
   };
 
   $scope.editNote = function(newText, oldText, note) {
-    Note.update(note.id, {text: newText})
-      .then(function(note) {
-        console.debug('updated note');
-      },
+    var updatePromise = Note.update(note.id, {text: newText});
+
+    updatePromise.then(function() {
+      console.debug('updated note');
+    },
       function(error) {
         console.error(error);
         AppAlert.add('danger', 'Could not update note.');
@@ -133,12 +127,8 @@ app.controller('BookDetailCtrl',
       $scope.notes = notes;
     });
 
-  hotkeys.add({
-    combo: 'ctrl+n',
-    callback: function() {
+  $hotkey.bind('ctrl + n', function() {
       $scope.addNoteForm.focus = true;
-    },
-    description: 'Add a new note.'
-  });
+    });
 
 });

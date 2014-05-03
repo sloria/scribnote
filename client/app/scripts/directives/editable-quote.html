@@ -13,6 +13,7 @@
 <form ng-show="MODE === EDITING"
       ng-submit="submit()"
       name="noteForm"
+      enter-submit="submit()"
       class="form">
   <div ng-class="{'has-error': noteForm.note.$invalid}" class="form-group">
     <textarea

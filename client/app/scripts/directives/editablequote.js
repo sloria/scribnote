@@ -1,3 +1,6 @@
+/**
+ * An editable blockquote, similar to X-editable.
+ */
 'use strict';
 
 var app = angular.module('appApp');
@@ -16,7 +19,7 @@ app.directive('editableQuote', function () {
       eqCiteTitle: '@',
       eqPlaceholder : '@'
     },
-    link: function postLink(scope, element, attrs) {
+    link: function postLink(scope) {
       var oldText = scope.eqText;
 
       scope.EDITING = 'e';

@@ -3,7 +3,7 @@ var app = angular.module('appApp', [
   'ngResource',
   'ngRoute',
   'ui.bootstrap',
-  'cfp.hotkeys',
+  'drahak.hotkeys',
   'relativeDate'
 ]);
 
