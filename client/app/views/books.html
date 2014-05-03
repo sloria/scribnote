@@ -44,7 +44,8 @@
     <!-- New book form -->
     <div
       ng-show="addForm.active"
-      class="add-book">
+      class="add-book"
+      >
       <form
         ng-submit="addForm.submit()"
         class="form-inline" role="form">
@@ -69,6 +70,7 @@
         </div>
         <button ng-click="addForm.deactivate()"
         class="btn btn-default">Cancel</button>
+
         <input ng-submit="addForm.submit()"
         type="submit" class="btn btn-success">
       </form>

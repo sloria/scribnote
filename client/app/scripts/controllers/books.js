@@ -2,7 +2,7 @@
 
 var app = angular.module('appApp');
 
-app.controller('BooksCtrl', function ($scope, Book, AppAlert, $hotkey) {
+app.controller('BooksCtrl', function ($scope, Book, AppAlert, hotkeys) {
 
   $scope.books = [];
   Book.query().then(function(books) {
@@ -49,11 +49,20 @@ app.controller('BooksCtrl', function ($scope, Book, AppAlert, $hotkey) {
     });
   };
 
-  $hotkey.bind('Ctrl + n', function() {
-    $scope.addForm.activate();
+  // Allow hotkeys to work even if in a text input
+  Mousetrap.stopCallback = function() {
+    return false;
+  };
+
+  hotkeys.add({
+    combo: 'ctrl+n',
+    callback: function() {
+      $scope.addForm.activate();
+    },
+    description: 'Add a new book.'
   });
 
-  $hotkey.bind('Esc', function() {
+  hotkeys.add('escape', function() {
     $scope.addForm.deactivate();
   });
 
@@ -61,7 +70,7 @@ app.controller('BooksCtrl', function ($scope, Book, AppAlert, $hotkey) {
 
 
 app.controller('BookDetailCtrl',
-    function($scope, $routeParams, Book, Note, AppAlert, $hotkey) {
+    function($scope, $routeParams, Book, Note, AppAlert, hotkeys) {
   // Initialize variables
   var bookID = $routeParams.id;
   $scope.book = {};
@@ -124,8 +133,12 @@ app.controller('BookDetailCtrl',
       $scope.notes = notes;
     });
 
-  $hotkey.bind('Ctrl + n', function() {
-    $scope.addNoteForm.focus = true;
+  hotkeys.add({
+    combo: 'ctrl+n',
+    callback: function() {
+      $scope.addNoteForm.focus = true;
+    },
+    description: 'Add a new note.'
   });
 
 });

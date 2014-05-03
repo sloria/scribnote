@@ -2,7 +2,7 @@
 
 var app = angular.module('appApp');
 
-app.directive('editableQuote', function ($hotkey) {
+app.directive('editableQuote', function () {
   return {
     templateUrl: 'scripts/directives/editable-quote.html',
     transclude: true,

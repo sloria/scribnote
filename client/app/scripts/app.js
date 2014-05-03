@@ -3,7 +3,7 @@ var app = angular.module('appApp', [
   'ngResource',
   'ngRoute',
   'ui.bootstrap',
-  'drahak.hotkeys',
+  'cfp.hotkeys',
   'relativeDate'
 ]);
 
@@ -38,7 +38,6 @@ var routeConfig = function($routeProvider) {
 };
 
 app.config(routeConfig);
-
 
 app.value('serverConfig', {
   DOMAIN: 'http://localhost:5000'
