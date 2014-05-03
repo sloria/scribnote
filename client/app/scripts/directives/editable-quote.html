@@ -26,6 +26,10 @@
     </textarea>
     <p ng-show="noteForm.note.$error.required" class="help-block error">No text given.</p>
   </div>
+
+
   <input ng-show="noteForm.$valid" type="submit"
     class="btn btn-success pull-right">
+  <button ng-click="deactivate()"
+        class="btn btn-default pull-right">Cancel</button>
 </form>
