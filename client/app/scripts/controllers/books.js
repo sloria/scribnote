@@ -97,6 +97,19 @@ app.controller('BookDetailCtrl',
     });
   };
 
+  $scope.editNote = function(newText, oldText, note) {
+    Note.update(note.id, {text: newText})
+      .then(function(note) {
+        console.debug('updated note');
+      },
+      function(error) {
+        console.error(error);
+        AppAlert.add('danger', 'Could not update note.');
+      }
+    );
+    return;
+  };
+
   Book.get(bookID)
     .then(function(book) {
       $scope.book = book;
