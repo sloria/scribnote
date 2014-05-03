@@ -222,24 +222,24 @@ class TestBookNoteNestedResource:
         return NoteFactory(book=book)
 
     def test_url(self):
-        assert url_for('books.notes', book_id=42) == '/api/books/42/notes/'
+        assert url_for('books.BookDetail:notes', book_id=42) == '/api/books/42/notes/'
 
     def test_get_book_notes(self, wt, book):
         note1, note2 = NoteFactory(book=book), NoteFactory(book=book)
-        url = url_for('books.notes', book_id=book.id)
+        url = url_for('books.BookDetail:notes', book_id=book.id)
         res = wt.get(url)
         result = res.json['result']
         assert len(result) == len(book.notes)
 
     def test_get_book_note(self, wt, book, note):
-        url = url_for('books.note', book_id=book.id, note_id=note.id)
+        url = url_for('books.BookDetail:note', book_id=book.id, note_id=note.id)
         res = wt.get(url)
         result = res.json['result']
         assert result['text'] == note.text
         assert 'book' in result
 
     def test_put_book_note(self, wt, book, note):
-        url = url_for('books.note_edit', book_id=book.id, note_id=note.id)
+        url = url_for('books.BookDetail:note_edit', book_id=book.id, note_id=note.id)
         new_text = fake.paragraph()
         res = wt.put_json(url, {'text': new_text})
         assert res.status_code == 200
@@ -247,7 +247,7 @@ class TestBookNoteNestedResource:
 
     def test_delete_book_note(self, wt, book, note):
         old_length = Note.query.count()
-        url = url_for('books.note_delete', book_id=book.id, note_id=note.id)
+        url = url_for('books.BookDetail:note_delete', book_id=book.id, note_id=note.id)
         res = wt.delete(url)
         new_length = Note.query.count()
         assert new_length == old_length - 1

@@ -3,6 +3,7 @@ import logging
 import httplib as http
 
 from flask import Blueprint, url_for, request
+from flask.ext.classy import route
 from webargs import Arg
 
 from ..meta.api import (
@@ -67,13 +68,49 @@ class AuthorList(ModelListResource):
         return resp, http.OK
 
 
-
 class BookDetail(ModelResource):
     route_base = '/books/'
+
     BLUEPRINT = 'books'
     MODEL = Book
     SERIALIZER = serialize_book
     NAME = 'book'
+
+    # Nested book/note views
+
+    @route('/<book_id>/notes/')
+    def notes(self, book_id):
+        book = Book.api_get_or_404(book_id)
+        return {
+            'result': serialize_note(book.notes, many=True).data
+        }
+
+    @route('/<book_id>/notes/<note_id>')
+    def note(self, book_id, note_id):
+        note = Note.api_get_or_404(note_id)
+        return {
+            'result': serialize_note(note).data
+        }
+
+    @route('/<book_id>/notes/<note_id>', methods=['PUT'])
+    @use_args({
+        'text':    Arg(unicode, allow_missing=True,
+                        validate=lambda t: t and len(t) > 0),
+        'book_id': Arg(int, allow_missing=True),
+    })
+    def note_edit(self, reqargs, book_id, note_id):
+        note = Note.api_get_or_404(note_id)
+        note.update(**reqargs)
+        note.save()
+        return {
+            'result': serialize_note(note).data
+        }
+
+    @route('/<book_id>/notes/<note_id>', methods=['DELETE'])
+    def note_delete(self, book_id, note_id):
+        note = Note.api_get_or_404(note_id)
+        note.delete(commit=True)
+        return {}
 
 
 class BookList(ModelListResource):
@@ -125,43 +162,3 @@ register_class_views(
     ],
     blueprint
 )
-
-##### Nested routes ######
-
-route = blueprint.route
-
-@route('/books/<book_id>/notes/')
-def notes(book_id):
-    book = Book.api_get_or_404(book_id)
-    return {
-        'result': serialize_note(book.notes, many=True).data
-    }
-
-@route('/books/<book_id>/notes/<note_id>')
-def note(book_id, note_id):
-    note = Note.api_get_or_404(note_id)
-    return {
-        'result': serialize_note(note).data
-    }
-
-
-NOTE_ARGS = {
-    'text': Arg(unicode, allow_missing=True, validate=lambda t: t and len(t) > 0),
-    'book_id': Arg(int, allow_missing=True),
-}
-
-@route('/books/<book_id>/notes/<note_id>', methods=['PUT'])
-@use_args(NOTE_ARGS)
-def note_edit(reqargs, book_id, note_id):
-    note = Note.api_get_or_404(note_id)
-    note.update(**reqargs)
-    note.save()
-    return {
-        'result': serialize_note(note).data
-    }
-
-@route('/books/<book_id>/notes/<note_id>', methods=['DELETE'])
-def note_delete(book_id, note_id):
-    note = Note.api_get_or_404(note_id)
-    note.delete(commit=True)
-    return {}

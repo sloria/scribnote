@@ -9,7 +9,7 @@ class BaseBookMarshal(ma.Serializer):
     _links = ma.Hyperlinks({
         'self': ma.AbsoluteURL('books.BookDetail:get', id='<id>'),
         'collection': ma.AbsoluteURL('books.BookList:get'),
-        'notes': ma.AbsoluteURL('books.notes', book_id='<id>')
+        'notes': ma.AbsoluteURL('books.BookDetail:notes', book_id='<id>')
     })
 
     class Meta:
