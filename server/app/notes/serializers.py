@@ -7,10 +7,11 @@ class NoteMarshal(ma.Serializer):
     class Meta:
         dateformat = 'iso'
         additional = ('id', 'text', )
+
     created = ma.DateTime(attribute='date_created')
     book = ma.Nested(BookMarshal)
     _links = ma.Hyperlinks({
-        'collection': ma.URL('notes.NoteList:get'),
+        'collection': ma.AbsoluteURL('notes.NoteList:get'),
     })
 
 # Create factory functions which set strict mode as default
