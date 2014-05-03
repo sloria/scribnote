@@ -26,6 +26,12 @@ app.factory('Note', function ($http, serverConfig, relativeDate) {
     });
   };
 
+  Note.update = function(id, params) {
+    return $http.put(baseUrl + id, params).then(function(resp) {
+      return new Note(resp.data.result);
+    });
+  };
+
   Note.query = function() {
     return $http.get(baseUrl).then(function(resp) {
       var noteDataArray = resp.data.result;
