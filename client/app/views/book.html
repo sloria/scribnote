@@ -40,12 +40,14 @@
     <div class="note-list">
       <div ng-repeat="note in notes | orderBy:'createdDate':true">
 
-        <blockquote>
-          <p>{{ note.text }}</p>
-          <small>
-            {{ book.author | authorName }}, <em>{{book.title}}</em>
-            </small>
-        </blockquote>
+        <editable-quote
+            eq-text="{{ note.text }}"
+            eq-rows="10"
+            eq-submit="editNote(newText, oldText, note)"
+            eq-cite-author="{{ book.author | authorName }}"
+            eq-cite-title="{{book.title}}"
+            eq-placeholder="Enter a note...">
+        </editable-quote>
         <div class="note-controls">
           <small
               tooltip="{{ note.created | date:'MMM d, y h:mm:ss a' }}"
