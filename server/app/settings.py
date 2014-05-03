@@ -10,6 +10,7 @@ class Config(object):
 
     CACHE_TYPE = 'simple'  # Can be "memcached", "redis", etc.
     MARSHMALLOW_STRICT = True
+    MARSHMALLOW_DATEFORMAT = 'iso'
 
 
 class ProdConfig(Config):

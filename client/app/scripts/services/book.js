@@ -7,6 +7,7 @@ app.factory('Book', function ($http, serverConfig) {
 
   function Book(data) {
     angular.extend(this, data);
+    this.createdDate = new Date(data.created);
   }
 
   // Static method to get book by id
