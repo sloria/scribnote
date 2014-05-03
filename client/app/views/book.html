@@ -47,7 +47,11 @@
             </small>
         </blockquote>
         <div class="note-controls">
-          <small class="note-datecreated pull-right">created {{ note.createdRelative }}</small>
+          <small
+              tooltip="{{ note.created | date:'MMM d, y h:mm:ss a' }}"
+              class="note-datecreated pull-right">
+            created {{ note.createdRelative }}
+          </small>
           <a class="text-danger"
             style="cursor: pointer"
             ng-really-message="Are you sure you want to delete this note? This is IRREVERSIBLE."
