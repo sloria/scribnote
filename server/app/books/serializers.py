@@ -33,7 +33,7 @@ class AuthorMarshal(ma.Serializer):
         additional = ('id', 'first', 'last')
 
 class BookMarshal(BaseBookMarshal):
-    author = ma.Nested(AuthorMarshal, allow_null=True)
+    author = ma.Nested(AuthorMarshal, exclude=('books', ), allow_null=True)
 
 
 serialize_author = AuthorMarshal.factory(strict=True)
