@@ -15,6 +15,7 @@ def serve():
 
 
 namespace = Collection()
-namespace.add_collection(client.tasks, 'clt')
-namespace.add_collection(server.tasks, 'srv')
+# Namespace client and server tasks to c and s, respectively
+namespace.add_collection(client.tasks, 'c')
+namespace.add_collection(server.tasks, 's')
 namespace.add_task(serve)
