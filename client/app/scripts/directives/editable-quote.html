@@ -1,0 +1,31 @@
+<blockquote
+    ng-show="MODE === VIEWING"
+    ng-click="activate()"
+    class="editable-quote">
+
+  <p>{{eqText}}</p>
+
+  <small>
+    {{eqCiteAuthor}} <span ng-show="eqCiteAuthor">, {{eqCiteTitle}}</span>
+  </small>
+</blockquote>
+
+<form ng-show="MODE === EDITING"
+      ng-submit="submit()"
+      name="noteForm"
+      class="form">
+  <div ng-class="{'has-error': noteForm.note.$invalid}" class="form-group">
+    <textarea
+          name="note"
+          ng-model="eqText"
+          ng-required="true"
+          placeholder="{{eqPlaceholder}}"
+          rows="{{eqRows}}"
+          cols="{{eqCols}}"
+          class="form-control" >
+    </textarea>
+    <p ng-show="noteForm.note.$error.required" class="help-block error">No text given.</p>
+  </div>
+  <input ng-show="noteForm.$valid" type="submit"
+    class="btn btn-success pull-right">
+</form>
