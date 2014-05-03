@@ -1,16 +1,15 @@
 # -*- coding: utf-8 -*-
 #
-from flask.ext.marshmallow import Serializer, fields
-
+from ..extensions import ma
 
 # Serializers
-class BaseBookMarshal(Serializer):
-    created = fields.DateTime(attribute='date_created')
+class BaseBookMarshal(ma.Serializer):
+    created = ma.DateTime(attribute='date_created')
 
-    _links = fields.Hyperlinks({
-        'self': fields.AbsoluteURL('books.BookDetail:get', id='<id>'),
-        'collection': fields.AbsoluteURL('books.BookList:get'),
-        'notes': fields.AbsoluteURL('books.notes', book_id='<id>')
+    _links = ma.Hyperlinks({
+        'self': ma.AbsoluteURL('books.BookDetail:get', id='<id>'),
+        'collection': ma.AbsoluteURL('books.BookList:get'),
+        'notes': ma.AbsoluteURL('books.notes', book_id='<id>')
     })
 
     class Meta:
@@ -18,15 +17,15 @@ class BaseBookMarshal(Serializer):
         additional = ('id', 'title', 'isbn')
 
 
-class AuthorMarshal(Serializer):
-    created = fields.DateTime(attribute='date_created')
-    books = fields.Nested(BaseBookMarshal, many=True)
+class AuthorMarshal(ma.Serializer):
+    created = ma.DateTime(attribute='date_created')
+    books = ma.Nested(BaseBookMarshal, many=True)
 
     # Implement HATEOAS
-    _links = fields.Hyperlinks({
-        'self': fields.AbsoluteURL('books.AuthorDetail:get', id='<id>'),
-        'update': fields.AbsoluteURL('books.AuthorDetail:put', id='<id>'),
-        'collection': fields.AbsoluteURL('books.AuthorList:get'),
+    _links = ma.Hyperlinks({
+        'self': ma.AbsoluteURL('books.AuthorDetail:get', id='<id>'),
+        'update': ma.AbsoluteURL('books.AuthorDetail:put', id='<id>'),
+        'collection': ma.AbsoluteURL('books.AuthorList:get'),
     })
 
     class Meta:
@@ -34,7 +33,7 @@ class AuthorMarshal(Serializer):
         additional = ('id', 'first', 'last')
 
 class BookMarshal(BaseBookMarshal):
-    author = fields.Nested(AuthorMarshal, allow_null=True)
+    author = ma.Nested(AuthorMarshal, allow_null=True)
 
 
 serialize_author = AuthorMarshal.factory(strict=True)

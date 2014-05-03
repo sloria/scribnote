@@ -5,13 +5,7 @@ from flask import make_response
 from flask.ext.api import FlaskAPI
 
 from .settings import ProdConfig
-from .extensions import (
-    bcrypt,
-    cache,
-    db,
-    login_manager,
-    migrate,
-)
+from .extensions import register_extensions
 from . import main, books, notes
 
 logger = logging.getLogger(__name__)
@@ -38,15 +32,6 @@ def create_app(config_object=ProdConfig):
         resp.headers['Access-Control-Max-Age'] = '604800'
         return resp
     return api
-
-
-def register_extensions(app):
-    bcrypt.init_app(app)
-    cache.init_app(app)
-    db.init_app(app)
-    migrate.init_app(app, db)
-    return None
-
 
 def register_blueprints(app):
     api_blueprints = [

@@ -1,16 +1,16 @@
 # -*- coding: utf-8 -*-
-from flask.ext.marshmallow import Serializer, fields
 
+from ..extensions import ma
 from ..books.serializers import BookMarshal
 
-class NoteMarshal(Serializer):
+class NoteMarshal(ma.Serializer):
     class Meta:
         dateformat = 'iso'
         additional = ('id', 'text', )
-    created = fields.DateTime(attribute='date_created')
-    book = fields.Nested(BookMarshal)
-    _links = fields.Hyperlinks({
-        'collection': fields.URL('notes.NoteList:get'),
+    created = ma.DateTime(attribute='date_created')
+    book = ma.Nested(BookMarshal)
+    _links = ma.Hyperlinks({
+        'collection': ma.URL('notes.NoteList:get'),
     })
 
 # Create factory functions which set strict mode as default
