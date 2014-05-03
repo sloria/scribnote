@@ -40,11 +40,12 @@
     <div class="note-list">
       <div ng-repeat="note in notes | orderBy:'createdDate':true">
 
-        <div class="note-text">
-          {{ note.text }}
-          <cite class='pull-right'>
-            {{ book.author | authorName }}, <em>{{book.title}}</em></cite>
-        </div>
+        <blockquote>
+          <p>{{ note.text }}</p>
+          <small>
+            {{ book.author | authorName }}, <em>{{book.title}}</em>
+            </small>
+        </blockquote>
         <div class="note-controls">
           <small class="note-datecreated pull-right">created {{ note.createdRelative }}</small>
           <a class="text-danger"
