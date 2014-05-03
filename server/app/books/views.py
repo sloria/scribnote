@@ -14,7 +14,8 @@ from ..meta.api import (
     use_args
 )
 from ..notes.models import Note
-from ..serializers import serialize_author, serialize_book, serialize_note
+from .serializers import serialize_author, serialize_book
+from ..notes.serializers import serialize_note
 from .models import Author, Book
 
 logger = logging.getLogger(__name__)

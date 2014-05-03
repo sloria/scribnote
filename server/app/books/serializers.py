@@ -4,7 +4,6 @@ from flask.ext.marshmallow import Serializer, fields
 
 
 # Serializers
-
 class BaseBookMarshal(Serializer):
     created = fields.DateTime(attribute='date_created')
 
@@ -38,17 +37,5 @@ class BookMarshal(BaseBookMarshal):
     author = fields.Nested(AuthorMarshal, allow_null=True)
 
 
-class NoteMarshal(Serializer):
-    class Meta:
-        dateformat = 'iso'
-        additional = ('id', 'text', )
-    created = fields.DateTime(attribute='date_created')
-    book = fields.Nested(BookMarshal)
-    _links = fields.Hyperlinks({
-        'collection': fields.URL('notes.NoteList:get'),
-    })
-
-# Create factory functions which set strict mode as default
 serialize_author = AuthorMarshal.factory(strict=True)
 serialize_book = BookMarshal.factory(strict=True)
-serialize_note = NoteMarshal.factory(strict=True)

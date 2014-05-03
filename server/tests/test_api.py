@@ -3,7 +3,7 @@
 import pytest
 from flask import url_for
 import httplib as http
-from marshmallow.utils import rfcformat
+from marshmallow.utils import isoformat
 
 from server.app.books.models import Author, Book
 from server.app.notes.models import Note
@@ -22,7 +22,7 @@ class TestAuthorResource:
         data = res.json['result']
         assert data['first'] == author.first
         assert data['last'] == author.last
-        assert data['created'] == rfcformat(author.date_created)
+        assert data['created'] == isoformat(author.date_created)
         assert 'books' in data
 
     def test_get_if_author_doesnt_exist(self, wt):

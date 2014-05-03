@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 
 import pytest
-from marshmallow.utils import rfcformat
+from marshmallow.utils import isoformat
 
 from flask import url_for
 from .factories import AuthorFactory, BookFactory, NoteFactory
 
-from server.app.serializers import AuthorMarshal, BookMarshal, NoteMarshal
+from server.app.notes.serializers import NoteMarshal
+from server.app.books.serializers import AuthorMarshal, BookMarshal
 
 @pytest.mark.usefixtures('db')
 class TestAuthorMarshal:
@@ -16,7 +17,7 @@ class TestAuthorMarshal:
         data = AuthorMarshal(author, strict=True).data
         assert data['first'] == author.first
         assert data['last'] == author.last
-        assert data['created'] == rfcformat(author.date_created)
+        assert data['created'] == isoformat(author.date_created)
 
     def test_serialize_single_links(self, app):
         author = AuthorFactory()
@@ -34,7 +35,7 @@ class TestBookMarshal:
     def test_serialize_single(self):
         book = BookFactory()
         data = BookMarshal(book, strict=True).data
-        assert data['created'] == rfcformat(book.date_created)
+        assert data['created'] == isoformat(book.date_created)
         assert 'author' in data
 
     def test_serialize_single_links(self):

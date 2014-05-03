@@ -10,7 +10,7 @@ from ..meta.api import (
     register_class_views,
 )
 from ..books.models import Book
-from ..serializers import serialize_note
+from .serializers import serialize_note
 from .models import Note
 
 blueprint = Blueprint('notes', __name__)
