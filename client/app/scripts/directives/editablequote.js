@@ -19,7 +19,11 @@ app.directive('editableQuote', function () {
       eqCiteTitle: '@',
       eqPlaceholder : '@'
     },
-    link: function postLink(scope) {
+    link: function postLink(scope, element) {
+      element.css({
+        cursor: 'pointer'
+      });
+
       var oldText = scope.eqText;
 
       scope.EDITING = 'e';
