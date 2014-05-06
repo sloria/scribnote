@@ -144,5 +144,13 @@ class ModelListResource(APIView):
 
 
 def register_class_views(view_classes, app, route_base=None, route_prefix=None):
+    """Registers a list of FlaskViews to an app or blueprint. ::
+
+        register_class_views([
+            UserDetail, UserList,
+            TweetDetail, TweetList
+        ], blueprint)
+
+    """
     for each in view_classes:
         each.register(app, route_base=route_base, route_prefix=route_prefix)

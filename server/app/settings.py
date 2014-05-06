@@ -12,7 +12,6 @@ class Config(object):
     MARSHMALLOW_STRICT = True
     MARSHMALLOW_DATEFORMAT = 'iso'
 
-
 class ProdConfig(Config):
     """Production configuration."""
     ENV = 'prod'

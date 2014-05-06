@@ -9,7 +9,7 @@ from server.app.user.models import User, Role
 from server.app.books.models import Book, Author
 from server.app.notes.models import Note
 
-from .factories import UserFactory, BookFactory, AuthorFactory
+from .factories import UserFactory, BookFactory, AuthorFactory, NoteFactory
 from .utils import fake
 
 @pytest.mark.usefixtures('db')
@@ -114,3 +114,9 @@ class TestNote:
         assert isinstance(note.date_created, dt.datetime)
         assert note.book == book
 
+    def test_note_delete_cascade(self):
+        book = BookFactory()
+        note = NoteFactory(book=book)
+        assert Note.query.filter(Note.book == book).count() == 1
+        book.delete(commit=True)
+        assert Note.query.filter(Note.book == book).count() == 0

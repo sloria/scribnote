@@ -44,6 +44,8 @@ class Book(SurrogatePK, Model):
     author_id = ReferenceCol('authors', nullable=True)
     author = relationship('Author', backref='books')
 
+    notes = relationship('Note', backref='book', cascade='all, delete, delete-orphan')
+
     def __init__(self, title, **kwargs):
         db.Model.__init__(self, title=title, **kwargs)
 

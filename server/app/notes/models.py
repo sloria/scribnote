@@ -18,8 +18,8 @@ class Note(SurrogatePK, Model):
     text = Col(db.Unicode(5000))
     date_created = DefaultDateTimeCol(nullable=False)
 
-    book_id = ReferenceCol('books')
-    book = relationship('Book', backref='notes')
+    book_id = ReferenceCol('books')  # NOTE: relationship is defined in
+                                     # Book model to allow for delete cascading
 
     def __init__(self, text, *args, **kwargs):
         self.text = text
