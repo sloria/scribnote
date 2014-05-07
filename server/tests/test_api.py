@@ -320,3 +320,17 @@ class TestAuth:
         url = url_for('users.user_detail', id=user.id)
         res = wt.get(url, auth=(token, ''))
         assert res.status_code == 200
+
+    def test_authenticate(self, wt):
+        user = UserFactory.build()
+        user.set_password('easypass')
+        user.save()
+
+        url = url_for('users.authenticate')
+        res = wt.post_json(url, {'username': user.email, 'password': 'easypass'})
+        token = res.json['token']
+        assert isinstance(token, (unicode, str))
+
+        res = wt.post_json(url, {'username': user.email, 'password': 'wrongpass'},
+            expect_errors=True)
+        assert res.status_code == http.UNAUTHORIZED

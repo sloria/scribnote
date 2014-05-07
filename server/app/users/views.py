@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 import httplib as http
-from flask import Blueprint, g, request, current_app, url_for
+from flask import Blueprint, g, url_for
 from webargs import Arg
-from flask.ext.api.exceptions import NotFound
+from flask.ext.api.exceptions import NotFound, AuthenticationFailed
 
 from ..meta.api import use_args, BadRequestError
 from ..extensions import auth
@@ -63,3 +63,19 @@ def user_detail(id):
 def get_token():
     token = g.user.generate_token()
     return {'result': token}
+
+@route('/authenticate/', methods=['POST'])
+@use_args({
+    'username': Arg(required=True),
+    'password': Arg(required=True)
+}, targets=('data', 'json'))
+def authenticate(reqargs):
+    username, password = reqargs['username'], reqargs['password']
+    user = User.query.filter_by(email=username).first()
+    if user is None or not user.check_password(password):
+        raise AuthenticationFailed()
+    token = user.generate_token()
+    return {
+        'result': UserSerializer(user).data,
+        'token': token,
+    }
