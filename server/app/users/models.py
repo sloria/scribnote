@@ -50,7 +50,7 @@ class User(UserMixin, SurrogatePK, Model):
     def generate_token(self):
         auth_serializer = TimedSerializer(
             current_app.config['SECRET_KEY'],
-            expires_in=current_app.config.get('AUTH_TOKEN_EXPIRE', 600)
+            expires_in=current_app.config.get('AUTH_TOKEN_EXPIRE', 5 * 60)
         )
         return auth_serializer.dumps([self.id, self.password])
 
