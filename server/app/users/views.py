@@ -33,8 +33,12 @@ def users():
     }
 
 @route('/users/', methods=['POST'])
-def register():
-    email, password = request.data['email'], request.data['password']
+@use_args({
+    'email': Arg(required=True),
+    'password': Arg(required=True)
+}, targets=('data', 'json'))
+def register(reqargs):
+    email, password = reqargs['email'], reqargs['password']
     if User.query.filter_by(email=email).first() is not None:
         raise BadRequestError()
     user = User(email=email)

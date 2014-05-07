@@ -272,6 +272,14 @@ class TestAuth:
         data = res.json['result']
         assert data['email'] == email
 
+    def test_register_requires_email_and_password(self, wt):
+        url = url_for('users.register')
+        res = wt.post_json(url, {'email': fake.email()}, expect_errors=True)
+        assert res.status_code == 400
+
+        res = wt.post_json(url, {'password': fake.password()}, expect_errors=True)
+        assert res.status_code == 400
+
     def test_cant_register_dupe_email(self, wt):
         user = UserFactory()
 
