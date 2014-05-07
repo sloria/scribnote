@@ -25,8 +25,8 @@ class TestUser:
     def test_created_at_defaults_to_datetime(self):
         user = User(email='foo@bar.com')
         user.save()
-        assert bool(user.created_at)
-        assert isinstance(user.created_at, dt.datetime)
+        assert bool(user.date_created)
+        assert isinstance(user.date_created, dt.datetime)
 
     def test_password_is_nullable(self):
         user = User(email='foo@bar.com')
@@ -36,7 +36,7 @@ class TestUser:
     def test_factory(self):
         user = UserFactory(password="myprecious")
         assert bool(user.email)
-        assert bool(user.created_at)
+        assert bool(user.date_created)
         assert user.is_admin is False
         assert user.active is True
         assert user.check_password('myprecious')
