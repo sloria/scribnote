@@ -80,7 +80,6 @@
             ng-class="{'has-error': loginForm.password.$dirty && loginForm.password.$invalid}" class="form-group landing-input">
           <input type="password" class="form-control input-lg" name="password"
               ng-model="user.password"
-              ng-required="true"
               placeholder="Password">
           <span ng-show="loginForm.password.$dirty && loginForm.password.$error.required" class="help-block">Password is required</span>
         </div>

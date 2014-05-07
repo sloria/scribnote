@@ -2,8 +2,11 @@
 
 var app = angular.module('appApp');
 
-app.controller('MainCtrl', ['$scope', 'Auth', 'AppAlert',
-  function ($s, Auth, AppAlert) {
+app.controller('MainCtrl', ['$scope', 'Auth', 'AppAlert', '$location', '$window',
+  function ($s, Auth, AppAlert, $location, $window) {
+  if ($window.sessionStorage.token) {
+    $location.path('/books/');
+  }
   $s.REGISTER = 'register';
   $s.LOGIN = 'login';
   $s.FORM = $s.REGISTER;
@@ -29,10 +32,19 @@ app.controller('MainCtrl', ['$scope', 'Auth', 'AppAlert',
   $s.submitLogin = function() {
     var promise = Auth.login($s.user.email, $s.user.password);
     promise.success(function(resp) {
-      AppAlert.add('success', 'Success!');
+      var user = resp.result;
+      var msg;
+      if (user.first_name) {
+        msg = 'Welcome back, ' + user.first_name + '!';
+      } else {
+        msg = 'Welcome back!';
+      }
+      AppAlert.add('success', msg);
+      $location.path('/books/');
     });
-    promise.error(function(resp, status) {
-      AppAlert.add('danger', 'Error: Could not log in. Please try again.');
+
+    promise.error(function(resp) {
+      AppAlert.add('danger', resp.message || 'Error: Could not log in. Please try again.');
       console.error(resp);
     });
   };

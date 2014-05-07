@@ -5,7 +5,7 @@ from ..extensions import ma
 
 class UserSerializer(ma.Serializer):
     class Meta:
-        additional = ('id', )
+        additional = ('id', 'first_name', 'last_name')
 
     created = ma.DateTime(attribute='date_created')
     email = ma.Email()
