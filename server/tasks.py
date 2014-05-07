@@ -14,7 +14,7 @@ def get_app():
     # are installed
     from app.factory import create_app
     from app.settings import DevConfig, ProdConfig
-    if os.environ.get("PSYGIST_ENV") == 'prod':
+    if os.environ.get("SCRIBNOTE_ENV") == 'prod':
         app = create_app(ProdConfig)
     else:
         app = create_app(DevConfig)

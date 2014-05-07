@@ -7,7 +7,7 @@ from factory import (
 )
 from factory.alchemy import SQLAlchemyModelFactory
 
-from server.app.user.models import User
+from server.app.users.models import User
 from server.app.books.models import Author, Book
 from server.app.notes.models import Note
 from server.app.meta.database import db
@@ -36,8 +36,7 @@ def FakerAttribute(provider, *args, **kwargs):
 class UserFactory(BaseFactory):
     FACTORY_FOR = User
 
-    username = Sequence(lambda n: "user{0}".format(n))
-    email = Sequence(lambda n: "user{0}@example.com".format(n))
+    email = FakerAttribute('email')
     password = PostGenerationMethodCall('set_password', 'example')
     active = True
 

@@ -24,6 +24,9 @@ cache = Cache()
 from flask.ext.marshmallow import Marshmallow
 ma = Marshmallow()
 
+from flask.ext.httpauth import HTTPBasicAuth
+auth = HTTPBasicAuth()
+
 
 ALL_EXTENSIONS = [
     bcrypt,

@@ -33,6 +33,7 @@ wsgiref>=0.1.2
 # Auth
 Flask-Login>=0.2.7
 Flask-Bcrypt>=0.5.2
+Flask-HTTPAuth==2.2.1
 
 # Caching
 Flask-Cache>=0.12

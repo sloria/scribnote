@@ -2,7 +2,7 @@
 """Defines fixtures available to all tests."""
 
 import pytest
-from webtest import TestApp
+from webtest_plus import TestApp
 
 from server.app.settings import TestConfig
 from server.app.factory import create_app

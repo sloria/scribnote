@@ -7,7 +7,8 @@ from marshmallow.utils import isoformat
 
 from server.app.books.models import Author, Book
 from server.app.notes.models import Note
-from .factories import AuthorFactory, BookFactory, NoteFactory
+from server.app.users.models import User
+from .factories import AuthorFactory, BookFactory, NoteFactory, UserFactory
 from .utils import fake
 
 
@@ -251,3 +252,63 @@ class TestBookNoteNestedResource:
         res = wt.delete(url)
         new_length = Note.query.count()
         assert new_length == old_length - 1
+
+@pytest.mark.usefixtures('db')
+class TestAuth:
+
+    def test_urls(self):
+        assert url_for('users.register') == '/api/users/'
+        assert url_for('users.user_detail', id=123) == '/api/users/123'
+
+    def test_register(self, wt):
+        url = url_for('users.register')
+        email, pw = fake.email(), fake.password()
+        old_count = User.query.count()
+        res = wt.post_json(url, {'email': email, 'password': pw})
+        assert res.status_code == 201
+        # New user was created
+        new_count = User.query.count()
+        assert new_count == old_count + 1
+        data = res.json['result']
+        assert data['email'] == email
+
+    def test_cant_register_dupe_email(self, wt):
+        user = UserFactory()
+
+        url = url_for('users.register')
+        res = wt.post_json(url, {'email': user.email, 'password': fake.password()},
+            expect_errors=True)
+        assert res.status_code == 400
+
+    def test_user_detail_needs_auth(self, wt):
+        user = UserFactory.build()
+        pw = fake.password()
+        user.set_password(pw)
+        user.save()
+        url = url_for('users.user_detail', id=user.id)
+        res = wt.get(url, auth=(user.email, pw))
+        assert res.status_code == 200
+        data = res.json['result']
+        assert data['email'] == user.email
+
+        res = wt.get(url, expect_errors=True)
+        assert res.status_code == 401
+
+    def test_get_token(self, wt):
+        user = UserFactory.build()
+        pw = fake.password()
+        user.set_password(pw)
+        user.save()
+
+        url = url_for('users.get_token')
+        res = wt.get(url, auth=(user.email, pw))
+        assert res.status_code == 200
+        assert isinstance(res.json['result'], unicode)
+
+    def test_user_detail_with_token(self, wt):
+        user = UserFactory()
+        token = user.generate_token()
+
+        url = url_for('users.user_detail', id=user.id)
+        res = wt.get(url, auth=(token, ''))
+        assert res.status_code == 200

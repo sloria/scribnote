@@ -6,7 +6,7 @@ from flask.ext.api import FlaskAPI
 
 from .settings import ProdConfig
 from .extensions import register_extensions
-from . import main, books, notes
+from . import main, books, notes, users
 
 logger = logging.getLogger(__name__)
 
@@ -38,6 +38,7 @@ def register_blueprints(app):
         books.views.blueprint,
         main.views.blueprint,
         notes.views.blueprint,
+        users.views.blueprint,
     ]
     for bp in api_blueprints:
         app.register_blueprint(
