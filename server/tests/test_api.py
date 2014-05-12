@@ -334,3 +334,44 @@ class TestAuth:
         res = wt.post_json(url, {'username': user.email, 'password': 'wrongpass'},
             expect_errors=True)
         assert res.status_code == http.UNAUTHORIZED
+
+@pytest.fixture
+def user(db):
+    return UserFactory()
+
+@pytest.yield_fixture
+def wt_plus(user, wt):
+    """A TestApp with token authentication."""
+    wt.authenticate(user.generate_token(), '')
+
+    yield wt
+
+    wt.deauthenticate()
+
+@pytest.mark.usefixtures('db')
+class TestUserResource:
+
+    def test_url(self, wt):
+        assert url_for('users.UserDetail:get', id=42) == '/api/users/42'
+        assert url_for('users.UserDetail:dashboard', id=42) == '/api/users/42/dashboard/'
+
+    def test_user_detail(self, user, wt_plus):
+        url = url_for('users.UserDetail:get', id=user.id)
+        res = wt_plus.get(url)
+        assert res.status_code == 200
+        result = res.json['result']
+        assert result['email'] == user.email
+        assert result['id'] == user.id
+
+    def test_user_detail_requires_auth(self, wt, user):
+        url = url_for('users.UserDetail:get', id=user.id)
+        res = wt.get(url, expect_errors=True)
+        assert res.status_code == http.UNAUTHORIZED
+
+    def test_user_dashboard(self, wt_plus, user):
+        url = url_for('users.UserDetail:dashboard', id=user.id)
+        res = wt_plus.get(url)
+        assert res.status_code == 200
+        data = res.json['result']
+        assert 'user' in data
+        assert 'books' in data
