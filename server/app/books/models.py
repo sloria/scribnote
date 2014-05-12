@@ -30,6 +30,24 @@ class Author(SurrogatePK, Model):
     def __repr__(self):
         return '<Author({self.full_name!r})>'.format(self=self)
 
+class ReadingListItem(Model):
+    """Association table that creates a many-to-many relationship between
+    books and users.
+    """
+    __tablename__ = 'readinglistitems'
+
+    book_id = ReferenceCol('books', primary_key=True)
+    book = relationship('Book')
+    user_id = ReferenceCol('users', primary_key=True)
+
+    # "Read" states
+    READ = 'read'
+    UNREAD = 'unread'
+
+    state = Col(db.Enum(READ, UNREAD), default=UNREAD)
+
+    date_added = DefaultDateTimeCol()
+
 
 class Book(SurrogatePK, Model):
     __tablename__ = 'books'

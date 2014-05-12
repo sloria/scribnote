@@ -19,6 +19,7 @@ from ..meta.database import (
     SurrogatePK,
     DefaultDateTimeCol
 )
+from ..books.models import ReadingListItem, Book
 
 
 class User(UserMixin, SurrogatePK, Model):
@@ -33,6 +34,9 @@ class User(UserMixin, SurrogatePK, Model):
     last_name = Column(db.String(30), nullable=True)
     active = Column(db.Boolean(), default=False)
     is_admin = Column(db.Boolean(), default=False)
+
+    reading_list_items = relationship('ReadingListItem', backref='user')
+
 
     def __init__(self, email, password=None, **kwargs):
         db.Model.__init__(self, email=email, **kwargs)
@@ -71,3 +75,37 @@ class User(UserMixin, SurrogatePK, Model):
 
     def __repr__(self):
         return '<User({email!r})>'.format(email=self.email)
+
+    def add_to_reading_list(self, book):
+        reading_list_item = ReadingListItem(user=self, book=book)
+        self.reading_list_items.append(reading_list_item)
+
+    @property
+    def reading_list(self):
+        return Book.query.join(ReadingListItem).filter_by(user=self)
+
+    def get_reading_list_item(self, book):
+        return ReadingListItem.query.filter_by(
+            user=self, book=book
+        ).first()
+
+    def has_read(self, book):
+        reading_list_item = self.get_reading_list_item(book)
+        if not reading_list_item:
+            return False
+        else:
+            return reading_list_item.state == ReadingListItem.READ
+
+    def _set_item_state(self, book, state):
+        """Helper for setting the state of a book on the user's reading list."""
+        reading_list_item = self.get_reading_list_item(book)
+        if not reading_list_item:
+            raise ValueError('Cannot mark book that is not part of the user\'s '
+                'reading list.')
+        reading_list_item.state = state
+
+    def mark_as_read(self, book):
+        self._set_item_state(book, ReadingListItem.READ)
+
+    def mark_as_unread(self, book):
+        self._set_item_state(book, ReadingListItem.UNREAD)

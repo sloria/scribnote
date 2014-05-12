@@ -6,7 +6,7 @@ from flask import url_for
 import pytest
 
 from server.app.users.models import User
-from server.app.books.models import Book, Author
+from server.app.books.models import Book, Author, ReadingListItem
 from server.app.notes.models import Note
 
 from .factories import UserFactory, BookFactory, AuthorFactory, NoteFactory
@@ -50,6 +50,54 @@ class TestUser:
     def test_full_name(self):
         user = UserFactory(first_name="Foo", last_name="Bar")
         assert user.full_name == "Foo Bar"
+
+@pytest.mark.usefixtures('db')
+class TestReadingLists:
+
+    def test_user_can_add_to_reading_list(self):
+        user = UserFactory()
+        book = BookFactory()
+        user.add_to_reading_list(book)
+        user.save()
+
+        assert book in user.reading_list.all()
+        assert ReadingListItem.query.filter_by(user=user, book=book).count() == 1
+
+    def test_user_has_read(self, db):
+        user = UserFactory()
+        book = BookFactory()
+        user.add_to_reading_list(book)
+        db.session.add(user)
+        db.session.commit()
+        assert user.has_read(book) is False
+
+        rl = ReadingListItem.query.filter_by(user=user, book=book).first()
+        rl.state = ReadingListItem.READ
+        db.session.add(rl)
+        db.session.commit()
+        assert user.has_read(book) is True
+
+    def test_mark_as_read(self, db):
+        user, book = UserFactory(), BookFactory()
+        user.add_to_reading_list(book)
+        db.session.add(user)
+        db.session.commit()
+        user.mark_as_read(book)
+        assert user.has_read(book) is True
+
+    def test_mark_as_unread(self, db):
+        user, book = UserFactory(), BookFactory()
+        user.add_to_reading_list(book)
+        user.save()
+        rl = user.get_reading_list_item(book)
+        rl.state = ReadingListItem.READ
+        rl.save()
+        assert user.has_read(book) is True
+        user.mark_as_unread(book)
+        user.save()
+        assert user.has_read(book) is False
+
+
 
 @pytest.mark.usefixtures('db')
 class TestBook:

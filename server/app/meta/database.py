@@ -121,5 +121,6 @@ def DefaultDateTimeCol(**kwargs):
     """Datetime column that defaults to utcnow."""
     return db.Column(
         db.DateTime,
-        default=dt.datetime.utcnow
+        default=dt.datetime.utcnow,
+        **kwargs
     )
