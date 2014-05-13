@@ -42,3 +42,27 @@ app.config(routeConfig);
 app.value('serverConfig', {
   DOMAIN: 'http://localhost:5000'
 });
+
+// Interceptor that sends auth information if available on session storage
+app.factory('authInterceptor', function($rootScope, $q, $window) {
+  return {
+    request: function(config) {
+      config.headers = config.headers || {};
+      var token = $window.sessionStorage.token
+      if (token) {
+        config.headers.Authorization = 'Bearer ' + token;
+      }
+      return config;
+    },
+    responseError: function(rejection) {
+      if (rejection.status === 401) {
+        // TODO: handle case where user not authenticated
+      }
+      return $q.reject(rejection);
+    }
+  };
+});
+
+app.config(function($httpProvider) {
+  $httpProvider.interceptors.push('authInterceptor');
+});
