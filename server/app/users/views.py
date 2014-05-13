@@ -111,7 +111,4 @@ class UserDetail(ModelResource):
         }
 
 
-
-
-
 register_class_views([UserDetail], blueprint)

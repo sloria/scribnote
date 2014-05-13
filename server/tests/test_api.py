@@ -374,4 +374,44 @@ class TestUserResource:
         assert res.status_code == 200
         data = res.json['result']
         assert 'user' in data
-        assert 'books' in data
+
+@pytest.mark.usefixtures('db')
+class TestReadingListResource:
+
+    def test_url(self):
+        assert url_for('books.ReadingList:get') == '/api/reading/'
+
+    def test_must_be_logged_in_to_access(self, wt):
+        url = url_for('books.ReadingList:get')
+        res = wt.get(url, expect_errors=True)
+        assert res.status_code == http.UNAUTHORIZED
+
+        user = UserFactory()
+        res = wt.get(url, auth=(user.generate_token(), ''))
+        assert res.status_code == http.OK
+
+    def test_returns_books_in_users_reading_list(self, user, wt_plus):
+        book = BookFactory()
+        user.add_to_reading_list(book)
+        user.save()
+
+        url = url_for('books.ReadingList:get')
+        res = wt_plus.get(url)
+        result = res.json['result']
+        assert len(result) == len(user.reading_list.all())
+        # also contains user info
+        assert 'user' in res.json
+
+    def test_post_with_book_id_adds_book_to_book_list(self, wt_plus, user):
+        book = BookFactory()
+        url = url_for('books.ReadingList:post')
+        res = wt_plus.post_json(url, {'book_id': book.id})
+        assert book in user.reading_list.all()
+
+    def test_put_with_book_id_toggles_read_status(self, wt_plus, user):
+        book = BookFactory()
+        user.add_to_reading_list(book)
+        user.save()
+        url = url_for('books.ReadingList:put')
+        res = wt_plus.put_json(url, {'book_id': book.id})
+        assert user.has_read(book) is True

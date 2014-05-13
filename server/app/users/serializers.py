@@ -12,3 +12,5 @@ class UserSerializer(ma.Serializer):
     _links = ma.Hyperlinks({
         'self': ma.URL('users.user_detail', id='<id>')
     })
+
+serialize_user = UserSerializer.factory(strict=True)

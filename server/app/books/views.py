@@ -2,21 +2,25 @@
 import logging
 import httplib as http
 
-from flask import Blueprint, url_for, request
+from flask import Blueprint, url_for, request, g
 from flask.ext.classy import route
+from flask.ext.api.exceptions import NotFound
 from webargs import Arg
 
+from ..extensions import auth
 from ..meta.api import (
     # reqparser,
     ModelResource,
     ModelListResource,
     register_class_views,
     reqparser,
-    use_args
+    use_args,
+    APIView,
 )
 from ..notes.models import Note
 from .serializers import serialize_author, serialize_book
 from ..notes.serializers import serialize_note
+from ..users.serializers import serialize_user
 from .models import Author, Book
 
 logger = logging.getLogger(__name__)
@@ -153,12 +157,57 @@ class BookList(ModelListResource):
         }, http.CREATED
 
 
+class ReadingList(APIView):
+    route_base = '/reading/'
+    decorators = [auth.login_required]
+
+    ARGS = {
+        'book_id': Arg(int, required=True)
+    }
+
+    def get(self):
+        current_user = g.user
+        reading_list = current_user.reading_list.all()
+        res = {
+            'result': serialize_book(reading_list, many=True).data,
+            'user': serialize_user(current_user).data
+        }
+        return res
+
+    def post(self):
+        current_user = g.user
+        reqargs = self._parse_request()
+        book = Book.get_by_id(reqargs['book_id'])
+        if not book:
+            raise NotFound(detail='Book with id {0!r} not found.'.format(book.id))
+        current_user.add_to_reading_list(book)
+        current_user.save()
+        return {
+            'result': serialize_book(book).data,
+            'user': serialize_user(current_user).data,
+        }, http.OK
+
+    def put(self):
+        current_user = g.user
+        reqargs = self._parse_request()
+        book = Book.get_by_id(reqargs['book_id'])
+        if not book:
+            raise NotFound(detail='Book with id {0!r} not found.'.format(book.id))
+        current_user.toggle_read(book)
+        current_user.save()
+        has_read = current_user.has_read(book)
+        return {
+            'result': serialize_book(book, extra={'read': has_read}).data,
+            'user': serialize_user(current_user).data,
+        }, http.OK
+
 register_class_views(
     [
         AuthorDetail,
         AuthorList,
         BookDetail,
-        BookList
+        BookList,
+        ReadingList,
     ],
     blueprint
 )

@@ -76,8 +76,8 @@ class User(UserMixin, SurrogatePK, Model):
     def __repr__(self):
         return '<User({email!r})>'.format(email=self.email)
 
-    def add_to_reading_list(self, book):
-        reading_list_item = ReadingListItem(user=self, book=book)
+    def add_to_reading_list(self, book, state=ReadingListItem.UNREAD):
+        reading_list_item = ReadingListItem(user=self, book=book, state=state)
         self.reading_list_items.append(reading_list_item)
 
     @property
@@ -109,3 +109,10 @@ class User(UserMixin, SurrogatePK, Model):
 
     def mark_as_unread(self, book):
         self._set_item_state(book, ReadingListItem.UNREAD)
+
+    def toggle_read(self, book):
+        if self.has_read(book):
+            target_state = ReadingListItem.UNREAD
+        else:
+            target_state = ReadingListItem.READ
+        self._set_item_state(book, target_state)
