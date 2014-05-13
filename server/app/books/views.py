@@ -165,7 +165,15 @@ class ReadingList(APIView):
         'book_id': Arg(int, required=True)
     }
 
+    def _get_book_from_request(self):
+        reqargs = self._parse_request()
+        book = Book.get_by_id(reqargs['book_id'])
+        if not book:
+            raise NotFound(detail='Book with id {0!r} not found.'.format(book.id))
+        return book
+
     def get(self):
+        """Get the reading list for the authenticated user."""
         current_user = g.user
         reading_list = current_user.reading_list.all()
         res = {
@@ -175,11 +183,12 @@ class ReadingList(APIView):
         return res
 
     def post(self):
+        """Add a book to the authenticated user's reading list.
+
+        :param-json int book_id: ID of the book to add.
+        """
         current_user = g.user
-        reqargs = self._parse_request()
-        book = Book.get_by_id(reqargs['book_id'])
-        if not book:
-            raise NotFound(detail='Book with id {0!r} not found.'.format(book.id))
+        book = self._get_book_from_request()
         current_user.add_to_reading_list(book)
         current_user.save()
         return {
@@ -188,11 +197,12 @@ class ReadingList(APIView):
         }, http.OK
 
     def put(self):
+        """Toggle the ``read`` status of a book.
+
+        :param-json int book_id: ID of the book to modify.
+        """
         current_user = g.user
-        reqargs = self._parse_request()
-        book = Book.get_by_id(reqargs['book_id'])
-        if not book:
-            raise NotFound(detail='Book with id {0!r} not found.'.format(book.id))
+        book = self._get_book_from_request()
         current_user.toggle_read(book)
         current_user.save()
         has_read = current_user.has_read(book)
@@ -200,6 +210,15 @@ class ReadingList(APIView):
             'result': serialize_book(book, extra={'read': has_read}).data,
             'user': serialize_user(current_user).data,
         }, http.OK
+
+    def delete(self):
+        """Remove a book from the user's reading list.
+
+        :param-json int book_id: The ID of the book to remove.
+        """
+        book = self._get_book_from_request()
+        g.user.remove_from_reading_list(book, commit=True)
+        return {}
 
 register_class_views(
     [

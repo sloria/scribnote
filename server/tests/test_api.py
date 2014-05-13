@@ -415,3 +415,11 @@ class TestReadingListResource:
         url = url_for('books.ReadingList:put')
         res = wt_plus.put_json(url, {'book_id': book.id})
         assert user.has_read(book) is True
+
+    def test_delete_removes_book_from_reading_list(self, wt_plus, user):
+        book = BookFactory()
+        user.add_to_reading_list(book)
+        user.save()
+        url = url_for('books.ReadingList:delete')
+        res = wt_plus.delete_json(url, {'book_id': book.id})
+        assert book not in user.reading_list

@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import datetime as dt
 
 from flask import current_app
 from flask.ext.login import UserMixin
@@ -14,7 +13,6 @@ from ..meta.database import (
     Column,
     db,
     Model,
-    ReferenceCol,
     relationship,
     SurrogatePK,
     DefaultDateTimeCol
@@ -29,7 +27,7 @@ class User(UserMixin, SurrogatePK, Model):
     email = Column(db.String(80), unique=True, nullable=False)
     #: The hashed password
     password = Column(db.String(128), nullable=True)
-    date_created = Column(db.DateTime, default=dt.datetime.utcnow)
+    date_created = DefaultDateTimeCol()
     first_name = Column(db.String(30), nullable=True)
     last_name = Column(db.String(30), nullable=True)
     active = Column(db.Boolean(), default=False)
@@ -79,6 +77,12 @@ class User(UserMixin, SurrogatePK, Model):
     def add_to_reading_list(self, book, state=ReadingListItem.UNREAD):
         reading_list_item = ReadingListItem(user=self, book=book, state=state)
         self.reading_list_items.append(reading_list_item)
+
+    def remove_from_reading_list(self, book, commit=True):
+        reading_list_item = self.get_reading_list_item(book)
+        if not reading_list_item:
+            raise ValueError('Book {0!r} is not in reading list.')
+        reading_list_item.delete(commit=commit)
 
     @property
     def reading_list(self):
