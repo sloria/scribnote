@@ -19,16 +19,6 @@ class FlaskAPIParser(FlaskParser):
     """Custom request argument parser from the webargs library that
     handles API errors by raising Flask-API's APIException.
     """
-    TARGET_MAP = {
-        'json': 'parse_json',
-        'querystring': 'parse_querystring',
-        'form': 'parse_form',
-        'headers': 'parse_headers',
-        'cookies': 'parse_cookies',
-        'files': 'parse_files',
-        'data': 'parse_data',
-    }
-    DEFAULT_TARGETS = ('data', 'json', 'querystring')
 
     def parse_data(self, req, name, arg):
         try:
@@ -38,6 +28,11 @@ class FlaskAPIParser(FlaskParser):
 
     def handle_error(self, error):
         raise BadRequestError(str(error))
+
+# Register custom parse_data method for the 'data' target
+FlaskAPIParser.TARGET_MAP['data'] = 'parse_data'
+# Add 'data' to default targets to parse
+FlaskAPIParser.DEFAULT_TARGETS = ('data', 'json', 'querystring')
 
 reqparser = FlaskAPIParser()
 use_kwargs = reqparser.use_kwargs
