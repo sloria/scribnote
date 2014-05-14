@@ -32,6 +32,10 @@ var routeConfig = function($routeProvider) {
       controller: 'AuthorDetailCtrl'
     })
 
+    .when('/reading', {
+      templateUrl: 'views/reading.html',
+      controller: 'ReadingCtrl'
+    })
     .otherwise({
       redirectTo: '/'
     });
@@ -48,14 +52,15 @@ app.factory('authInterceptor', function($rootScope, $q, $window) {
   return {
     request: function(config) {
       config.headers = config.headers || {};
-      var token = $window.sessionStorage.token
+      var token = $window.sessionStorage.token;
       if (token) {
-        config.headers.Authorization = 'Bearer ' + token;
+        config.headers.Authorization = 'Basic ' + btoa(token + ':' + '');
       }
       return config;
     },
     responseError: function(rejection) {
       if (rejection.status === 401) {
+        delete $window.sessionStorage.token;
         // TODO: handle case where user not authenticated
       }
       return $q.reject(rejection);

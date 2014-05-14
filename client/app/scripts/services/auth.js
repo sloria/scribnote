@@ -6,6 +6,10 @@ app.factory('Auth', function ($http, $window, serverConfig) {
   var tokenUrl = serverConfig.DOMAIN + '/api/authenticate/';
   return {
 
+    isAuthenticated: function() {
+      return $window.sessionStorage.token != null;
+    },
+
     /**
      * Log in a user by sending a request for a JWT, and saving the token to
      * sessionStorage.

@@ -5,7 +5,7 @@ var app = angular.module('appApp');
 app.controller('MainCtrl', ['$scope', 'Auth', 'AppAlert', '$location', '$window',
   function ($s, Auth, AppAlert, $location, $window) {
   if ($window.sessionStorage.token) {
-    $location.path('/books/');
+    $location.path('/reading/');
   }
   $s.REGISTER = 'register';
   $s.LOGIN = 'login';
@@ -40,7 +40,7 @@ app.controller('MainCtrl', ['$scope', 'Auth', 'AppAlert', '$location', '$window'
         msg = 'Welcome back!';
       }
       AppAlert.add('success', msg);
-      $location.path('/books/');
+      $location.path('/reading/');
     });
 
     promise.error(function(resp) {

@@ -25,11 +25,13 @@
 
 
     <div class="container">
-      <div class="header">
+      <div ng-controller="NavCtrl" class="header">
         <ul class="nav nav-pills pull-right">
           <li><a ng-href="#">Home</a></li>
+          <li><a ng-href="#/reading">Reading List</a></li>
           <li><a ng-href="#/books/">Books</a></li>
           <li><a ng-href="#/authors/">Authors</a></li>
+          <li><a ng-show="isAuthenticated()" class="pointed" ng-click="logout()">Log out</a></li>
         </ul>
         <h3 class="brand text-muted"><a href="#">scribnote.io</a></h3>
       </div>
@@ -82,6 +84,9 @@
         <script src="scripts/directives/entersubmit.js"></script>
         <script src="scripts/directives/editablequote.js"></script>
         <script src="scripts/services/auth.js"></script>
+        <script src="scripts/controllers/reading.js"></script>
+        <script src="scripts/services/readinglist.js"></script>
+        <script src="scripts/controllers/nav.js"></script>
         <!-- endbuild -->
 </body>
 </html>
