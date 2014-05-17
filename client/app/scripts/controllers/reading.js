@@ -8,7 +8,9 @@ app.controller('ReadingCtrl', function ($scope, ReadingList, AppAlert) {
   ReadingList.get().then(function(books) {
     $scope.books = books;
   }, function(error) {
-    AppAlert.add('danger', 'Could not fetch books. Please try again later.');
+    if (error.status !== 401) {
+        AppAlert.add('danger', 'Could not fetch books. Please try again later.');
+    };
   });
 
 });

@@ -36,6 +36,10 @@ var routeConfig = function($routeProvider) {
       templateUrl: 'views/reading.html',
       controller: 'ReadingCtrl'
     })
+    .when('/login', {
+      templateUrl: 'views/login.html',
+      controller: 'LoginCtrl'
+    })
     .otherwise({
       redirectTo: '/'
     });
@@ -48,7 +52,7 @@ app.value('serverConfig', {
 });
 
 // Interceptor that sends auth information if available on session storage
-app.factory('authInterceptor', function($rootScope, $q, $window) {
+app.factory('authInterceptor', function($rootScope, $q, $window, $location) {
   return {
     request: function(config) {
       config.headers = config.headers || {};
@@ -56,11 +60,12 @@ app.factory('authInterceptor', function($rootScope, $q, $window) {
       if (token) {
         config.headers.Authorization = 'Basic ' + btoa(token + ':' + '');
       }
-      return config;
+      return config || $q.when(config);
     },
     responseError: function(rejection) {
       if (rejection.status === 401) {
         delete $window.sessionStorage.token;
+        $location.path('/login');
         // TODO: handle case where user not authenticated
       }
       return $q.reject(rejection);
