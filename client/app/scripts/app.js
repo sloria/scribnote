@@ -76,3 +76,17 @@ app.factory('authInterceptor', function($rootScope, $q, $window, $location) {
 app.config(function($httpProvider) {
   $httpProvider.interceptors.push('authInterceptor');
 });
+
+app.run(['$rootScope', '$injector', function($rootScope, $injector) {
+  // Modify every http request to append auth token if it is available
+  var transformRequest = function(data, headersGetter) {
+    if ($rootScope.auth) {
+      var token = $rootScope.auth.token;
+      headersGetter().Authorization = 'Basic ' + btoa(token + ':' + '');
+    }
+    if (data) {
+      return angular.toJson(data);
+    }
+  };
+  $injector.get('$http').defaults.transformRequest = transformRequest;
+}]);
