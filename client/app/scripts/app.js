@@ -51,30 +51,64 @@ app.value('serverConfig', {
   DOMAIN: 'http://localhost:5000'
 });
 
-// Interceptor that sends auth information if available on session storage
-app.factory('authInterceptor', function($rootScope, $q, $window, $location) {
-  return {
-    request: function(config) {
-      config.headers = config.headers || {};
-      var token = $window.sessionStorage.token;
-      if (token) {
-        config.headers.Authorization = 'Basic ' + btoa(token + ':' + '');
-      }
-      return config || $q.when(config);
-    },
-    responseError: function(rejection) {
-      if (rejection.status === 401) {
-        delete $window.sessionStorage.token;
+app.factory('authTokenInterceptor', function($rootScope, $q, $injector, $location) {
+  var onSuccess = function(response) {
+    return response;
+  };
+
+  // On error, we'll try to get a new token and return the response for the
+  // original request
+  var onError = function(response) {
+    if (response.status === 401 && response.data.error && response.data.error === 'invalid_token') {
+      var deferred = $q.defer(); // defer until we can request a new token
+      // Can't get http directly becase we're in the config stage
+
+      // Try to reissue token
+
+      var onTokenSuccess = function(tokenResponse) {
+        if (tokenResponse.data) {
+          // Set token on root scope
+          // TODO: Use session storage to store the token
+          $rootScope.auth.token = tokenResponse.data.result;
+          // Now try the original request
+          $injector.get('$http')(response.config).then(function(origResponse) {
+            // Resolve the original request
+            deferred.resolve(origResponse);
+          }, function() { // something went wrong
+            deferred.reject();
+          });
+        } else { // Login failed to return a token
+          deferred.reject();
+        }
+      };
+
+      // When token issue fails, redirect to sigin
+      var onTokenError = function() {
+        deferred.reject();
         $location.path('/login');
-        // TODO: handle case where user not authenticated
-      }
-      return $q.reject(rejection);
+      };
+
+      // Make the token request
+      // TODO: Remove hardcoded domain
+      // TODO: JSON-P?
+      var domain = 'http://localhost:5000';
+      var tokenURL = domain + '/api/token';
+      $injector.get('$http').get(tokenURL).then(
+        onTokenSuccess, onTokenError
+      );
+
+    }
+  };
+
+  return {
+    response: function(promise) {
+      return promise.then(onSuccess, onError);
     }
   };
 });
 
 app.config(function($httpProvider) {
-  $httpProvider.interceptors.push('authInterceptor');
+  $httpProvider.interceptors.push('authTokenInterceptor');
 });
 
 app.run(['$rootScope', '$injector', function($rootScope, $injector) {
