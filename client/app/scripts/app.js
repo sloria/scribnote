@@ -51,7 +51,7 @@ app.value('serverConfig', {
   DOMAIN: 'http://localhost:5000'
 });
 
-app.factory('authTokenInterceptor', function($rootScope, $q, $injector, $location) {
+app.factory('authTokenInterceptor', function($window, $q, $injector, $location) {
   var onSuccess = function(response) {
     return response;
   };
@@ -59,7 +59,7 @@ app.factory('authTokenInterceptor', function($rootScope, $q, $injector, $locatio
   // On error, we'll try to get a new token and return the response for the
   // original request
   var onError = function(response) {
-    if (response.status === 401 && response.data.error && response.data.error === 'invalid_token') {
+    if (response.status === 401) {
       var deferred = $q.defer(); // defer until we can request a new token
       // Can't get http directly becase we're in the config stage
 
@@ -69,12 +69,12 @@ app.factory('authTokenInterceptor', function($rootScope, $q, $injector, $locatio
         if (tokenResponse.data) {
           // Set token on root scope
           // TODO: Use session storage to store the token
-          $rootScope.auth.token = tokenResponse.data.result;
+          $window.sessionStorage.auth.token = tokenResponse.data.result;
           // Now try the original request
           $injector.get('$http')(response.config).then(function(origResponse) {
             // Resolve the original request
             deferred.resolve(origResponse);
-          }, function() { // something went wrong
+          }, function() { // something went wrong; reject the original request
             deferred.reject();
           });
         } else { // Login failed to return a token
@@ -86,6 +86,7 @@ app.factory('authTokenInterceptor', function($rootScope, $q, $injector, $locatio
       var onTokenError = function() {
         deferred.reject();
         $location.path('/login');
+        return;
       };
 
       // Make the token request
@@ -96,26 +97,25 @@ app.factory('authTokenInterceptor', function($rootScope, $q, $injector, $locatio
       $injector.get('$http').get(tokenURL).then(
         onTokenSuccess, onTokenError
       );
-
     }
+    return $q.reject(response);  // unrecoverable error
   };
 
-  return {
-    response: function(promise) {
-      return promise.then(onSuccess, onError);
-    }
+  return function(promise) {
+    return promise.then(onSuccess, onError);
   };
 });
 
 app.config(function($httpProvider) {
-  $httpProvider.interceptors.push('authTokenInterceptor');
+  $httpProvider.responseInterceptors.push('authTokenInterceptor');
 });
 
-app.run(['$rootScope', '$injector', function($rootScope, $injector) {
+app.run(['$window', '$injector', function($window, $injector) {
+  $window.sessionStorage.auth = {};
   // Modify every http request to append auth token if it is available
   var transformRequest = function(data, headersGetter) {
-    if ($rootScope.auth) {
-      var token = $rootScope.auth.token;
+    var token = $window.sessionStorage.auth.token;
+    if (token) {
       headersGetter().Authorization = 'Basic ' + btoa(token + ':' + '');
     }
     if (data) {

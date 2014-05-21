@@ -28,7 +28,7 @@
       <div ng-controller="NavCtrl" class="header">
         <ul class="nav nav-pills pull-right">
           <li><a ng-href="#">Home</a></li>
-          <li><a ng-href="#/reading">Reading List</a></li>
+          <li><a ng-show="isAuthenticated()" ng-href="#/reading">Reading List</a></li>
           <li><a ng-href="#/books/">Books</a></li>
           <li><a ng-href="#/authors/">Authors</a></li>
           <li><a ng-show="isAuthenticated()" class="pointed" ng-click="logout()">Log out</a></li>

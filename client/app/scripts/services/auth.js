@@ -7,7 +7,7 @@ app.factory('Auth', function ($http, $window, serverConfig) {
   return {
 
     isAuthenticated: function() {
-      return $window.sessionStorage.token != null;
+      return $window.sessionStorage.auth.token != null;
     },
 
     /**
@@ -18,11 +18,11 @@ app.factory('Auth', function ($http, $window, serverConfig) {
       var promise = $http.post(tokenUrl, {username: username, password: password});
 
       promise.success(function(response) {
-        $window.sessionStorage.token = response.token;
+        $window.sessionStorage.auth.token = response.token;
       });
 
       promise.error(function() {
-        delete $window.sessionStorage.token;
+        delete $window.sessionStorage.auth.token;
       });
 
       return promise;
@@ -32,7 +32,7 @@ app.factory('Auth', function ($http, $window, serverConfig) {
      * Log out by deleting the current token.
      */
     logout: function() {
-      delete $window.sessionStorage.token;
+      delete $window.sessionStorage.auth.token;
     }
 
   };
