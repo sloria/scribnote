@@ -12,6 +12,8 @@ class Config(object):
     MARSHMALLOW_STRICT = True
     MARSHMALLOW_DATEFORMAT = 'iso'
 
+    JWT_AUTH_URL_RULE = '/api/authenticate'
+
 class ProdConfig(Config):
     """Production configuration."""
     ENV = 'prod'

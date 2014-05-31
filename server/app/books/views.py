@@ -6,8 +6,9 @@ from flask import Blueprint, url_for, request, g
 from flask.ext.classy import route
 from flask.ext.api.exceptions import NotFound
 from webargs import Arg
+from flask.ext.jwt import jwt_required, current_user
 
-from ..extensions import auth
+
 from ..meta.api import (
     # reqparser,
     ModelResource,
@@ -159,7 +160,7 @@ class BookList(ModelListResource):
 
 class ReadingList(APIView):
     route_base = '/reading/'
-    decorators = [auth.login_required]
+    decorators = [jwt_required(realm=None)]
 
     ARGS = {
         'book_id': Arg(int, required=True)
@@ -174,7 +175,6 @@ class ReadingList(APIView):
 
     def get(self):
         """Get the reading list for the authenticated user."""
-        current_user = g.user
         reading_list = current_user.reading_list.all()
         res = {
             'result': serialize_book(reading_list, many=True).data,

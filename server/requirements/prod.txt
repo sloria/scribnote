@@ -10,6 +10,9 @@ itsdangerous==0.24
 # REST API
 Flask-API
 Flask-Classy
+
+-e git://github.com/sloria/flask-jwt.git@master#egg=Flask-JWT
+
 # Dev versions of flask-marshmallow and webargs
 -e git://github.com/sloria/marshmallow.git@dev#egg=marshmallow
 -e git://github.com/sloria/flask-marshmallow.git@dev#egg=flask-marshmallow

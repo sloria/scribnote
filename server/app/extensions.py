@@ -27,6 +27,9 @@ ma = Marshmallow()
 from flask.ext.httpauth import HTTPBasicAuth
 auth = HTTPBasicAuth()
 
+from flask.ext.jwt import JWT
+jwt = JWT()
+
 
 ALL_EXTENSIONS = [
     bcrypt,
@@ -34,7 +37,8 @@ ALL_EXTENSIONS = [
     db,
     migrate,
     cache,
-    ma
+    ma,
+    jwt,
 ]
 
 
