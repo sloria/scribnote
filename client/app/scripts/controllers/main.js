@@ -32,13 +32,7 @@ app.controller('MainCtrl', ['$scope', 'Auth', 'AppAlert', '$location', '$window'
   $s.submitLogin = function() {
     var promise = Auth.login($s.user.email, $s.user.password);
     promise.success(function(resp) {
-      var user = resp.result;
-      var msg;
-      if (user.first_name) {
-        msg = 'Welcome back, ' + user.first_name + '!';
-      } else {
-        msg = 'Welcome back!';
-      }
+      var msg = 'Welcome back!';
       AppAlert.add('success', msg);
       $location.path('/reading/');
     });

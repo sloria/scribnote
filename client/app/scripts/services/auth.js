@@ -3,7 +3,7 @@
 var app = angular.module('appApp');
 
 app.factory('Auth', function ($http, $window, serverConfig) {
-  var tokenUrl = serverConfig.DOMAIN + '/api/authenticate/';
+  var authURL = serverConfig.DOMAIN + '/api/authenticate';
   return {
 
     isAuthenticated: function() {
@@ -15,7 +15,7 @@ app.factory('Auth', function ($http, $window, serverConfig) {
      * sessionStorage.
      */
     login: function(username, password) {
-      var promise = $http.post(tokenUrl, {username: username, password: password});
+      var promise = $http.post(authURL, {username: username, password: password});
 
       promise.success(function(response) {
         $window.sessionStorage.auth.token = response.token;

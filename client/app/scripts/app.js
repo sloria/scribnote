@@ -59,11 +59,9 @@ app.factory('authTokenInterceptor', function($window, $q, $injector, $location) 
   // On error, we'll try to get a new token and return the response for the
   // original request
   var onError = function(response) {
+    // TODO: set retry refresh token limit
     if (response.status === 401) {
       var deferred = $q.defer(); // defer until we can request a new token
-      // Can't get http directly becase we're in the config stage
-
-      // Try to reissue token
 
       var onTokenSuccess = function(tokenResponse) {
         if (tokenResponse.data) {
@@ -91,9 +89,10 @@ app.factory('authTokenInterceptor', function($window, $q, $injector, $location) 
 
       // Make the token request
       // TODO: Remove hardcoded domain
-      // TODO: JSON-P?
       var domain = 'http://localhost:5000';
-      var tokenURL = domain + '/api/token';
+      // Try to reissue token
+      var tokenURL = domain + '/api/refresh_token';
+      // Can't get http directly becase we're in the config stage
       $injector.get('$http').get(tokenURL).then(
         onTokenSuccess, onTokenError
       );
@@ -106,21 +105,26 @@ app.factory('authTokenInterceptor', function($window, $q, $injector, $location) 
   };
 });
 
-app.config(function($httpProvider) {
-  $httpProvider.responseInterceptors.push('authTokenInterceptor');
-});
-
-app.run(['$window', '$injector', function($window, $injector) {
-  $window.sessionStorage.auth = {};
-  // Modify every http request to append auth token if it is available
-  var transformRequest = function(data, headersGetter) {
-    var token = $window.sessionStorage.auth.token;
-    if (token) {
-      headersGetter().Authorization = 'Basic ' + btoa(token + ':' + '');
-    }
-    if (data) {
-      return angular.toJson(data);
+// TODO: merge request and response interceptors into one factory?
+app.factory('authRequestInterceptor', function($rootScope, $q, $window) {
+  return {
+    request: function(config) {
+      config.headers = config.headers || {};
+      var token = $window.sessionStorage.token;
+      if (token) {
+        config.headers.Authorization = 'Bearer ' + token;
+      }
+      return config;
     }
   };
-  $injector.get('$http').defaults.transformRequest = transformRequest;
-}]);
+});
+
+
+app.config(function($httpProvider) {
+  $httpProvider.responseInterceptors.push('authTokenInterceptor');
+  $httpProvider.interceptors.push('authRequestInterceptor');
+});
+
+app.run(function($window){
+  $window.sessionStorage.auth = $window.sessionStorage.auth || {};
+});
