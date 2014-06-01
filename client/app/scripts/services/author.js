@@ -2,12 +2,30 @@
 
 var app = angular.module('appApp');
 
-app.factory('Authors', function ($resource, serverConfig) {
-  var url = serverConfig.DOMAIN + '/api/authors/:id';
-  return $resource(url, {id: '@result.id'},
-    {
-      query: { isArray: false }
+app.factory('Author', function ($http, serverConfig) {
+  var baseURL = serverConfig.DOMAIN + '/api/authors/';
+
+  function Author(data) {
+    angular.extend(this, data);
+  }
+
+  Author.get = function(id) {
+    return $http.get(baseURL + id).then(function(response) {
+        return new Author(response.data.result);
     });
+  };
+
+  Author.query = function() {
+    return $http.get(baseURL).then(function(resp) {
+        var authorDataArray = resp.data.result;
+        return authorDataArray.map(function(authorData) {
+            return new Author(authorData);
+        });
+    });
+  };
+
+  return Author;
+
 });
 
 

@@ -2,15 +2,17 @@
 
 var app = angular.module('appApp');
 
-app.controller('AuthorsCtrl', function ($scope, Authors) {
-  Authors.query(function(response) {
-    $scope.authors = response.result;
+app.controller('AuthorsCtrl', function ($scope, Author, AppAlert) {
+  Author.query().then(function(authors){
+    $scope.authors = authors;
+  }, function(error) {
+    AppAlert.add('danger', 'Could not fetch authors. Please try again later.');
   });
 });
 
 
-app.controller('AuthorDetailCtrl', function($scope, $routeParams, Authors) {
-  Authors.get({id: $routeParams.id}, function(response) {
-    $scope.author = response.result;
+app.controller('AuthorDetailCtrl', function($scope, $routeParams, Author) {
+  Author.get($routeParams.id).then(function(author) {
+    $scope.author = author;
   });
 });

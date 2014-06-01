@@ -20,7 +20,7 @@ app.factory('ReadingList', function ($http, serverConfig) {
         return new Book(bookData);
       });
     });
-  }
+  };
 
   return ReadingList;
 
