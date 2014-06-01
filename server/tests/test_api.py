@@ -258,7 +258,7 @@ class TestAuth:
 
     def test_urls(self):
         assert url_for('users.register') == '/api/users/'
-        assert url_for('users.user_detail', id=123) == '/api/users/123'
+        assert url_for('users.UserDetail:get', id=123) == '/api/users/123'
 
     def test_register(self, wt):
         url = url_for('users.register')
@@ -288,38 +288,19 @@ class TestAuth:
             expect_errors=True)
         assert res.status_code == 400
 
-    def test_user_detail_needs_auth(self, wt):
+    def test_user_detail_needs_auth(self, wt, token):
         user = UserFactory.build()
         pw = fake.password()
         user.set_password(pw)
         user.save()
-        url = url_for('users.user_detail', id=user.id)
-        res = wt.get(url, auth=(user.email, pw))
+        url = url_for('users.UserDetail:get', id=user.id)
+        res = wt.get(url, auth=token, auth_type='jwt')
         assert res.status_code == 200
         data = res.json['result']
         assert data['email'] == user.email
 
         res = wt.get(url, expect_errors=True)
         assert res.status_code == 401
-
-    def test_get_token(self, wt):
-        user = UserFactory.build()
-        pw = fake.password()
-        user.set_password(pw)
-        user.save()
-
-        url = url_for('users.get_token')
-        res = wt.get(url, auth=(user.email, pw))
-        assert res.status_code == 200
-        assert isinstance(res.json['result'], unicode)
-
-    def test_user_detail_with_token(self, wt):
-        user = UserFactory()
-        token = user.generate_token()
-
-        url = url_for('users.user_detail', id=user.id)
-        res = wt.get(url, auth=(token, ''))
-        assert res.status_code == 200
 
     def test_authenticate(self, wt):
         user = UserFactory.build()
@@ -339,13 +320,19 @@ class TestAuth:
 def user(db):
     return UserFactory()
 
+
+@pytest.fixture
+def token(user, wt):
+    res = wt.post_json('/api/authenticate',
+        {'username': user.email, 'password': 'example'})
+    token = res.json['token']
+    return token
+
 @pytest.yield_fixture
-def wt_plus(user, wt):
-    """A TestApp with token authentication."""
-    wt.authenticate(user.generate_token(), '')
-
+def wt_plus(token, wt):
+    """An authenticated webtest app."""
+    wt.authenticate_with_token(token)
     yield wt
-
     wt.deauthenticate()
 
 @pytest.mark.usefixtures('db')
@@ -381,13 +368,12 @@ class TestReadingListResource:
     def test_url(self):
         assert url_for('books.ReadingList:get') == '/api/reading/'
 
-    def test_must_be_logged_in_to_access(self, wt):
+    def test_must_be_token_to_access(self, wt, token):
         url = url_for('books.ReadingList:get')
         res = wt.get(url, expect_errors=True)
         assert res.status_code == http.UNAUTHORIZED
 
-        user = UserFactory()
-        res = wt.get(url, auth=(user.generate_token(), ''))
+        res = wt.get(url, auth=token, auth_type='jwt')
         assert res.status_code == http.OK
 
     def test_returns_books_in_users_reading_list(self, user, wt_plus):

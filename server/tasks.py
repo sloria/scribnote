@@ -33,7 +33,7 @@ def requirements(dev=False):
         reqfile = os.path.join(HERE, 'requirements', 'dev.txt')
     else:
         reqfile = os.path.join(HERE, 'requirements', 'prod.txt')
-    pip.main(['install', '-r', reqfile])
+    pip.main(['install', '--upgrade', '-r', reqfile])
 
 @task
 def shell():

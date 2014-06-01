@@ -11,7 +11,7 @@ class Config(object):
     CACHE_TYPE = 'simple'  # Can be "memcached", "redis", etc.
     MARSHMALLOW_STRICT = True
     MARSHMALLOW_DATEFORMAT = 'iso'
-
+    JWT_AUTH_ENDPOINT = 'users.authenticate'
     JWT_AUTH_URL_RULE = '/api/authenticate'
 
 class ProdConfig(Config):

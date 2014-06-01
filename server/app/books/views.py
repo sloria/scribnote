@@ -2,7 +2,7 @@
 import logging
 import httplib as http
 
-from flask import Blueprint, url_for, request, g
+from flask import Blueprint, url_for, request
 from flask.ext.classy import route
 from flask.ext.api.exceptions import NotFound
 from webargs import Arg
@@ -178,7 +178,7 @@ class ReadingList(APIView):
         reading_list = current_user.reading_list.all()
         res = {
             'result': serialize_book(reading_list, many=True).data,
-            'user': serialize_user(current_user).data
+            'user': serialize_user(current_user._get_current_object()).data
         }
         return res
 
@@ -187,13 +187,12 @@ class ReadingList(APIView):
 
         :param-json int book_id: ID of the book to add.
         """
-        current_user = g.user
         book = self._get_book_from_request()
         current_user.add_to_reading_list(book)
         current_user.save()
         return {
             'result': serialize_book(book).data,
-            'user': serialize_user(current_user).data,
+            'user': serialize_user(current_user._get_current_object()).data,
         }, http.OK
 
     def put(self):
@@ -201,14 +200,13 @@ class ReadingList(APIView):
 
         :param-json int book_id: ID of the book to modify.
         """
-        current_user = g.user
         book = self._get_book_from_request()
         current_user.toggle_read(book)
         current_user.save()
         has_read = current_user.has_read(book)
         return {
             'result': serialize_book(book, extra={'read': has_read}).data,
-            'user': serialize_user(current_user).data,
+            'user': serialize_user(current_user._get_current_object()).data,
         }, http.OK
 
     def delete(self):
@@ -217,7 +215,7 @@ class ReadingList(APIView):
         :param-json int book_id: The ID of the book to remove.
         """
         book = self._get_book_from_request()
-        g.user.remove_from_reading_list(book, commit=True)
+        current_user.remove_from_reading_list(book, commit=True)
         return {}
 
 register_class_views(
