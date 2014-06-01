@@ -3,6 +3,7 @@
 from ..extensions import ma
 
 class AuthorMarshal(ma.Serializer):
+    """Defines the represention of an Author."""
     created = ma.DateTime(attribute='date_created')
     books = ma.Nested('BookMarshal', many=True, only=('id', 'title'))
 
@@ -17,6 +18,7 @@ class AuthorMarshal(ma.Serializer):
         additional = ('id', 'first', 'last')
 
 class BookMarshal(ma.Serializer):
+    """Defines the representation of a Book."""
     created = ma.DateTime(attribute='date_created')
     author = ma.Nested(AuthorMarshal, exclude=('books', ), allow_null=True)
 

@@ -67,7 +67,7 @@ app.factory('authTokenInterceptor', function($window, $q, $injector, $location) 
         if (tokenResponse.data) {
           // Set token on root scope
           // TODO: Use session storage to store the token
-          $window.sessionStorage.auth.token = tokenResponse.data.result;
+          $window.sessionStorage.token = tokenResponse.data.result;
           // Now try the original request
           $injector.get('$http')(response.config).then(function(origResponse) {
             // Resolve the original request
@@ -125,6 +125,3 @@ app.config(function($httpProvider) {
   $httpProvider.interceptors.push('authRequestInterceptor');
 });
 
-app.run(function($window){
-  $window.sessionStorage.auth = $window.sessionStorage.auth || {};
-});
